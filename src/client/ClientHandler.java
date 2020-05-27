@@ -1,6 +1,7 @@
 package client;
 
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMUserEvent;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
@@ -29,7 +30,23 @@ public class ClientHandler implements CMAppEventHandler {
 	}
 	
 	private void processUserEvent(CMEvent cme) {
+		CMUserEvent ue = (CMUserEvent) cme;
+		String action = ue.getStringID();
 		
+		switch(action) {
+		case "startGame":
+			
+			break;
+			
+		case "endGame":
+			break;
+			
+		case "move":
+			break;
+			
+		default:
+			break;
+		}
 	}
 
 }
