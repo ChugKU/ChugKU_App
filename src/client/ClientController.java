@@ -9,6 +9,7 @@ public class ClientController{
 	private ClientController() {
 		client = new Client();
 		clientHandler = new ClientHandler();
+		
 	}
 	
 	public static void main(String[] args) {
