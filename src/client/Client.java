@@ -22,8 +22,8 @@ public class Client {
 	ArrayList roomList; 
 	String roomName;
 	
-	boolean inRoom, ingGame;
-	int maxPoint, curPoint;
+	private boolean inRoom, ingGame;
+	private int maxPoint, curPoint;
 
 
 	class Player{
@@ -68,9 +68,6 @@ public class Client {
 			playerList = new ArrayList<Player>();
 		}
 	}
-		
-	public Player getPlayer() {
-		return player;		}
 	// ***** client control *****
 		
 		
@@ -95,11 +92,10 @@ public class Client {
 		CMUserEvent cme = new CMUserEvent();
 	//	cme.setID(this.player.id);
 		cme.setStringID("move");
-		cme.setEventField(CMInfo.CM_INT, "x", Integer.toString(x)); //send ingGame=false (gameover)
-		cme.setEventField(CMInfo.CM_INT, "y", Integer.toString(y)); //send ingGame=false (gameover)
-			
+		cme.setEventField(CMInfo.CM_INT, "x", Integer.toString(x)); //send x=x
+		cme.setEventField(CMInfo.CM_INT, "y", Integer.toString(y)); //send y=y
 		multicast(cme);
-		}
+		}	
 	// ***** user interaction *****
 
 	
@@ -128,10 +124,47 @@ public class Client {
 	// ***** game processing *****
 	
 	
+	// ***** client getter, setter *****
+	public boolean isInRoom() {
+		return inRoom;
+	}
+
+	public void setInRoom(boolean inRoom) {
+		this.inRoom = inRoom;
+	}
+
+	public boolean isIngGame() {
+		return ingGame;
+	}
+
+	public void setIngGame(boolean ingGame) {
+		this.ingGame = ingGame;
+	}
+
+	public int getMaxPoint() {
+		return maxPoint;
+	}
+
+	public void setMaxPoint(int maxPoint) {
+		this.maxPoint = maxPoint;
+	}
+	
+	public Player getPlayer() {
+		return player;		
+	}
+	
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+	// ***** client getter, setter *****
+	
+	
+	
 	public void multicast(CMEvent cme) {
 		clientStub.multicast(cme, session, group);
 	}
 	
+
 	public static void main(String[] args) {
 		Client client = new Client(1, "s1", "g1"); //user id
 		client.getClientStub().startCM();
