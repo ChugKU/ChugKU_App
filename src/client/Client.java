@@ -10,6 +10,7 @@ import kr.ac.konkuk.ccslab.cm.event.CMUserEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Client {
@@ -20,14 +21,15 @@ public class Client {
 	GUI gui;
 	int state, cmd;
 	
-	Player player;
 	boolean superPeer;
 	
 	String session, group;
 	
-	ArrayList playerList;
+	ArrayList<Player> playerList;
 	ArrayList<String> roomList;
 	String roomName;
+	
+	int playerID;
 	
 	private boolean inRoom, ingGame;
 	private int maxPoint, curPoint;
@@ -51,7 +53,7 @@ public class Client {
 		this.inRoom = false;
 		this.ingGame = false;
 		
-		player = new Player(id, 0, 0);
+		playerList = new ArrayList<Player>();
 		
 		clientStub = new CMClientStub();
 		clientHandler = new ClientHandler(clientStub);
@@ -113,7 +115,7 @@ public class Client {
 	public boolean startGame() {
 		if(this.superPeer) {
 			CMUserEvent cme = new CMUserEvent();
-		cme.setID(this.player.id);
+		cme.setID(this.playerID);
 			cme.setStringID("startGame");
 			cme.setEventField(CMInfo.CM_INT, "ingGame", Integer.toString(1)); //send room number
 				
@@ -126,22 +128,31 @@ public class Client {
 			return false;
 	}
 		
-	public void move(int x, int y) {
+	public void move(int x, int y, int kick) {
 		CMUserEvent cme = new CMUserEvent();
-		cme.setID(this.player.id);
+		cme.setID(this.playerID);
 		cme.setStringID("move");
 		cme.setEventField(CMInfo.CM_INT, "x", Integer.toString(x)); //send x=x
 		cme.setEventField(CMInfo.CM_INT, "y", Integer.toString(y)); //send y=y
+		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(kick)); //send kick=0,1
+		multicast(cme);
+		
+		cme = new CMUserEvent();
+		cme.setID(this.playerID);
+		cme.setStringID("update");
+		cme.setEventField(CMInfo.CM_INT, "x", Integer.toString(x)); //send x=x
+		cme.setEventField(CMInfo.CM_INT, "y", Integer.toString(y)); //send y=y
+		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(kick)); //send kick=0,1
 		multicast(cme);
 	}	
 	
-	public void kick() {
-		CMUserEvent cme = new CMUserEvent();
-		cme.setID(this.player.id);
-		cme.setStringID("kick");
-		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(1)); //send kick=true
-		multicast(cme);
-	}
+//	public void kick() {
+//		CMUserEvent cme = new CMUserEvent();
+//		cme.setID(this.playerID);
+//		cme.setStringID("kick");
+//		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(1)); //send kick=true
+//		multicast(cme);
+//	}
 	
 public void createRoom(String roomName) {
 		
@@ -183,7 +194,7 @@ public void createRoom(String roomName) {
 				this.ingGame = false;
 					
 				CMUserEvent cme = new CMUserEvent();
-				cme.setID(this.player.id);
+				cme.setID(this.playerID);
 				cme.setStringID("endGame");
 				cme.setEventField(CMInfo.CM_INT, "ingGame", Integer.toString(0)); //send ingGame=false (gameover)
 				
@@ -227,12 +238,13 @@ public void createRoom(String roomName) {
 		this.maxPoint = maxPoint;
 	}
 	
-	public Player getPlayer() {
-		return player;		
+	public int getPlayerID() {
+		return playerID;		
 	}
 	
-	public void setPlayer(Player player) {
-		this.player = player;
+	public void setPlayerList(int playerID, Player player) {
+		this.playerList.add(playerID, player);
+		this.playerList.remove(playerID+1);
 	}
 	// ***** client getter, setter *****
 	

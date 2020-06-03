@@ -8,6 +8,7 @@ import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import java.util.Iterator;
 import client.Client.Player;
 
 public class ClientHandler implements CMAppEventHandler {
@@ -75,16 +76,25 @@ public class ClientHandler implements CMAppEventHandler {
 			break;
 			
 		case "move":
-			int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
-			int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
-			//Player temp = new Player(ue.getID(), x, y);
-			client.setPlayer(client.new Player(ue.getID(), x, y));
+			if(client.superPeer) {	
+				int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
+				int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
+				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
+				
+				//client.playerList.getIndexof(1) = engine.(x,y,kick);	superpper의 playerlis 업데이
+			}
 			break;
 			
-		case "kick":
-			// ?
-			break;
+		case "update":
+			if(!client.superPeer) {
+				int id = ue.getID();
+				int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
+				int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
+				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
 			
+				client.setPlayerList(client.getPlayerID(), client.new Player(id, x, y));
+			}		
+			break;
 		default:
 			break;
 		}
