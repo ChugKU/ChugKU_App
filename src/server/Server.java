@@ -18,4 +18,8 @@ public class Server {
 	public ServerHandler getServerHandler() {
 		return serverHandler;
 	}
+	
+	public static void main(String args[]) {
+		
+	}
 }
