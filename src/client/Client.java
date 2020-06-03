@@ -68,14 +68,15 @@ public class Client {
 			playerList = new ArrayList<Player>();
 		}
 	}
-	// ***** client control *****
+	// ***** client control *****\\
+	
 		
 		
 	// ***** user interaction *****
 	public boolean startGame() {
 		if(this.superPeer) {
 			CMUserEvent cme = new CMUserEvent();
-	//	cme.setID(this.player.id);
+		cme.setID(this.player.id);
 			cme.setStringID("startGame");
 			cme.setEventField(CMInfo.CM_INT, "ingGame", Integer.toString(1)); //send room number
 				
@@ -86,16 +87,24 @@ public class Client {
 				return true;
 			}
 			return false;
-		}
+	}
 		
 	public void move(int x, int y) {
 		CMUserEvent cme = new CMUserEvent();
-	//	cme.setID(this.player.id);
+		cme.setID(this.player.id);
 		cme.setStringID("move");
 		cme.setEventField(CMInfo.CM_INT, "x", Integer.toString(x)); //send x=x
 		cme.setEventField(CMInfo.CM_INT, "y", Integer.toString(y)); //send y=y
 		multicast(cme);
-		}	
+	}	
+	
+	public void kick() {
+		CMUserEvent cme = new CMUserEvent();
+		cme.setID(this.player.id);
+		cme.setStringID("kick");
+		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(1)); //send kick=true
+		multicast(cme);
+	}
 	// ***** user interaction *****
 
 	
@@ -106,7 +115,7 @@ public class Client {
 				this.ingGame = false;
 					
 				CMUserEvent cme = new CMUserEvent();
-				//	cme.setID(this.player.id);
+				cme.setID(this.player.id);
 				cme.setStringID("endGame");
 				cme.setEventField(CMInfo.CM_INT, "ingGame", Integer.toString(0)); //send ingGame=false (gameover)
 				
@@ -120,6 +129,7 @@ public class Client {
 		
 	private void addPoint() {
 		this.curPoint++;
+	
 	}
 	// ***** game processing *****
 	
@@ -162,11 +172,17 @@ public class Client {
 	
 	public void multicast(CMEvent cme) {
 		clientStub.multicast(cme, session, group);
+		
 	}
 	
 
 	public static void main(String[] args) {
-		Client client = new Client(1, "s1", "g1"); //user id
+		Client client = new Client(1, "session2", "g1"); //user id
+		
+		client.clientHandler.setClient(client); //init 
+		
 		client.getClientStub().startCM();
+		
+		
 	}
 }
