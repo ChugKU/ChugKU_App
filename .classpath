@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/Home"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/Users/minjyo/git/ChugKU_App/cm.jar"/>
-	<classpathentry kind="lib" path="/Users/minjyo/git/ChugKU_App/commons-math3-3.5.jar"/>
-	<classpathentry kind="lib" path="/Users/minjyo/git/ChugKU_App/mysql-connector-java-5.1.31-bin.jar"/>
 	<classpathentry kind="lib" path="core.jar"/>
+	<classpathentry kind="lib" path="cm.jar"/>
+	<classpathentry kind="lib" path="commons-math3-3.5.jar"/>
+	<classpathentry kind="lib" path="mysql-connector-java-5.1.31-bin.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_251"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

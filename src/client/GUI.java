@@ -16,11 +16,11 @@ public class GUI extends PApplet {
 	int hits = 0;
 	float spin = 0;
 	
-	
-    // The argument passed to main must match the class name
-    public static void main(String[] args) {
-        PApplet.main("Test");
-    }
+	public static void main(String[] args) {
+		Client client = new Client(1, "session2", "g1"); //user id
+		client.init(client);
+		client.getClientStub().startCM();
+	}
 
     // method used only for setting the size of the window
     public void settings(){
