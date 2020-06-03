@@ -95,6 +95,16 @@ public class ClientHandler implements CMAppEventHandler {
 			//Room Access Deny
 			client.updateRoomList();
 			break;
+		case "ingGame":
+			CMDummyEvent response = new CMDummyEvent();
+			response.setID(due.getID());
+			if(client.isIngGame()) {
+				due.setDummyInfo("deny");
+			}else {
+				due.setDummyInfo("okay");
+			}
+			clientStub.send(due,"SERVER");
+			break;
 		default:	
 			return;
 		}

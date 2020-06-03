@@ -13,7 +13,8 @@ import java.util.Vector;
 public class Client {
 	private CMClientStub clientStub;
 	private ClientHandler clientHandler;
-	int state, cmd;
+	private int state, cmd;
+	private boolean ingGame;
 	
 	String session, group;
 	ArrayList<String> roomList;
@@ -97,7 +98,7 @@ public class Client {
 		CMDummyEvent due = new CMDummyEvent();
 		due.setDummyInfo("Enter@#$" + roomName);
 		//
-		due.setSender("");
+		due.setSender(clientStub.getMyself().getName());
 		
 		clientStub.send(due, "SERVER");
 	}
@@ -113,6 +114,11 @@ public class Client {
 		// TODO Auto-generated method stub
 		state = 1; // lobby panel
 		cmd = 1; // update String types of room name arraylist
+	}
+
+	public boolean isIngGame() {
+		// TODO Auto-generated method stub
+		return ingGame;
 	}
 	
 	
