@@ -244,7 +244,7 @@ public void createRoom(String roomName) {
 	
 	public void setPlayerList(int playerID, Player player) {
 		this.playerList.add(playerID, player);
-		this.playerList.remove(playerID+1);
+		this.playerList.remove(playerID + 1);
 	}
 	// ***** client getter, setter *****
 	
