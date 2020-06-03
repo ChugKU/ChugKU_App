@@ -112,7 +112,7 @@ public class ServerHandler implements CMAppEventHandler {
 					
 					CMDummyEvent received = (CMDummyEvent)serverStub.sendrecv(checkGame, member.get(0).getName(), CMInfo.CM_DUMMY_EVENT, checkGame.getID(), 1);
 										
-					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("deny@#$"+roomName);
+					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("okay@#$"+roomName);
 					else newDummyEvent.setDummyInfo("okay@#$"+roomName);
 				}
 				
