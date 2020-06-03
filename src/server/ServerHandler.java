@@ -1,22 +1,17 @@
 package server;
-//enter manage
-//
 
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.Random;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
-import kr.ac.konkuk.ccslab.cm.entity.CMMember;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
-import kr.ac.konkuk.ccslab.cm.event.CMUserEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
-import kr.ac.konkuk.ccslab.cm.stub.CMStub;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerHandler implements CMAppEventHandler {
@@ -113,7 +108,7 @@ public class ServerHandler implements CMAppEventHandler {
 					CMDummyEvent received = (CMDummyEvent)serverStub.sendrecv(checkGame, member.get(0).getName(), CMInfo.CM_DUMMY_EVENT, checkGame.getID(), 1);
 										
 					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("okay@#$"+roomName);
-					else newDummyEvent.setDummyInfo("okay@#$"+roomName);
+					else newDummyEvent.setDummyInfo("deny@#$"+roomName);
 				}
 				
 				serverStub.send(newDummyEvent, dummyEvent.getSender());
