@@ -1,4 +1,4 @@
-package client;
+package client; //jihyun hi~^^~f
 
 import kr.ac.konkuk.ccslab.cm.event.CMDataEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
@@ -8,8 +8,7 @@ import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
-import java.util.Iterator;
-import client.Client.Player;
+
 
 public class ClientHandler implements CMAppEventHandler {
 	private Client client;
@@ -33,7 +32,7 @@ public class ClientHandler implements CMAppEventHandler {
 	@Override
 	public void processEvent(CMEvent cme) {
 		
-		playerList[cme.getID()] = true;
+		//playerList[cme.getID()] = true;
 		
 		switch(cme.getType())
 		{
@@ -81,7 +80,7 @@ public class ClientHandler implements CMAppEventHandler {
 				int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
 				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
 				
-				//client.playerList.getIndexof(1) = engine.(x,y,kick);	superpper의 playerlis 업데이
+				//client.playerList.getIndexof(1) = engine.(x,y,kick);	superpper�쓽 playerlis �뾽�뜲�씠
 			}
 			break;
 			
@@ -135,7 +134,7 @@ public class ClientHandler implements CMAppEventHandler {
 		CMDummyEvent due = (CMDummyEvent) cme;
 		
 		// Parse Client-Server Request
-		String inputStr[] = due.getDummyInfo().split("@#$");
+		String inputStr[] = due.getDummyInfo().split(" ");
 		
 		switch (inputStr[0]) {
 		case "okay":
