@@ -6,15 +6,26 @@ import java.util.ArrayList;
 public class GUI extends PApplet {
 
 	public ArrayList<Player> player = new ArrayList<Player>();
-	ClientController controller;
-
+	Client controller;
+	
+	
 	float e = 1; // elastic modulus
 	boolean gameset = false;
 	boolean gameover = false;
+	boolean superPeer = false;
 	static int leftPlayer, rightPlayer, myNum;
 	int i, j = 0;
 	boolean start = true;
 	int leftScore = 0, rightScore = 0;
+	
+	public static void main(String[] args) {
+		leftPlayer=1;
+		rightPlayer=1;
+		myNum=1;
+		
+		PApplet.main(GUI.class);
+		
+	}
 
 	// method used only for setting the size of the window
 	public void settings() {
@@ -38,171 +49,10 @@ public class GUI extends PApplet {
 
 	// identical use to draw in Prcessing IDE
 	public void draw() {
-
+		if(superPeer) {
+			compute();
+		} compute();
 		setBoard();
-
-		for (i = 0; i < player.size(); i++) {
-			for (j = 0; j < player.size(); j++) {
-				if (i != j) {
-					float dx = player.get(i).x - player.get(j).x;
-					float dy = player.get(i).y - player.get(j).y;
-					float dab = abs(sqrt(dx * dx + dy * dy));
-
-					if (dab <= player.get(i).r + player.get(j).r) { // 두 공 및 플레이어 충돌 시
-						float sinTheta = dy / abs(sqrt(dx * dx + dy * dy));
-						float cosTheta = dx / abs(sqrt(dx * dx + dy * dy));
-						float vxAp = (player.get(i).m - e * player.get(j).m) / (player.get(i).m + player.get(j).m)
-								* (player.get(i).vx * cosTheta + player.get(i).vy * sinTheta)
-								+ (player.get(j).m + e * player.get(j).m) / (player.get(i).m + player.get(j).m)
-										* (player.get(j).vx * cosTheta + player.get(j).vy * sinTheta);
-						float vxBp = (player.get(i).m + e * player.get(i).m) / (player.get(i).m + player.get(j).m)
-								* (player.get(i).vx * cosTheta + player.get(i).vy * sinTheta)
-								+ (player.get(j).m - e * player.get(i).m) / (player.get(i).m + player.get(j).m)
-										* (player.get(j).vx * cosTheta + player.get(j).vy * sinTheta);
-						float vyAp = player.get(i).vx * (-sinTheta) + player.get(i).vy * cosTheta;
-						float vyBp = player.get(j).vx * (-sinTheta) + player.get(j).vy * cosTheta;
-
-						player.get(i).vx = vxAp * cosTheta + vyAp * (-sinTheta);
-						player.get(i).vy = vxAp * sinTheta + vyAp * cosTheta;
-						player.get(j).vx = vxBp * cosTheta + vyBp * (-sinTheta);
-						player.get(j).vy = vxBp * sinTheta + vyBp * cosTheta;
-
-						// 플레이어간 겹침 방지
-						float angleAB = atan2(dy, dx);
-						float angleplayer = atan2(-dy, -dx);
-						float moveToDistance = abs(player.get(i).r + player.get(j).r) - dab;
-						player.get(i).x = player.get(i).x + moveToDistance * cos(angleAB);
-						player.get(j).x = player.get(j).x + moveToDistance * cos(angleplayer);
-
-						player.get(i).vy *= 0.9;
-						player.get(i).vx *= 0.9;
-						player.get(j).vx *= 0.9;
-						player.get(j).vy *= 0.9;
-					}
-				}
-			}
-		}
-		
-		// 왼쪽 골대에 들어간 경우
-		if (player.get(0).x < 100 && player.get(0).x > 50 && player.get(0).y < 440 && player.get(0).y > 240) {
-			gameset = true;
-			rightScore += 1;
-		}
-		// 오른쪽 골대에 들어간 경우
-		if (player.get(0).x < 1270 && player.get(0).x > 1220 && player.get(0).y < 440 && player.get(0).y > 240) {
-			leftScore += 1;
-			gameset = true;
-		}
-		if (gameset) {
-			player.get(0).vx = 0;
-			player.get(0).vy = 0;
-			player.get(0).x = 660;
-			player.get(0).y = 340;
-			for (i = 1; i <= leftPlayer; i++) {
-				player.get(i).vx = 0;
-				player.get(i).vy = 0;
-				player.get(i).x = 200;
-				player.get(i).y = 250 + i * 100;
-			}
-			for (i = leftPlayer + 1; i <= leftPlayer + rightPlayer; i++) {
-				player.get(i).vx = 0;
-				player.get(i).vy = 0;
-				player.get(i).x = 1120;
-				player.get(i).y = 250 + i * 100;
-			}
-			setBoard();
-		}
-	
-		
-		// 공 벽에 부딪친 경우
-		if (player.get(0).x + player.get(0).vx < player.get(0).r + 100
-				|| player.get(0).x + player.get(0).vx > width - player.get(0).r - 100) {
-			if (player.get(0).x + player.get(0).vx < player.get(0).r + 100 && player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r) { // left wall
-				player.get(0).x = player.get(0).r + 100;
-				player.get(0).vx *= -0.7; // change x direct
-			} else if (player.get(0).x + player.get(0).vx > width - player.get(0).r - 100 && player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r) { // right wall
-				player.get(0).x = width - player.get(0).r - 100;
-				player.get(0).vx *= -0.7; // change x direct
-			}
-			player.get(0).vy *= 0.7;
-		}
-		if (player.get(0).y + player.get(0).vy < player.get(0).r + 80
-				|| player.get(0).y + player.get(0).vy > height - player.get(0).r - 80) {
-			if (player.get(0).y + player.get(0).vy < player.get(0).r + 80) { // top wall
-				player.get(0).y = player.get(0).r + 80;
-				player.get(0).vy *= -0.7;
-			} else { // bottom wall
-				player.get(0).y = height - player.get(0).r - 80;
-				player.get(0).vy *= -0.7;
-			}
-			player.get(0).vx *= 0.7;
-		}
-
-		// 플레이어들이 벽에 부딪힌 경우
-		for (i = 1; i < player.size(); i++) {
-			if (player.get(i).x + player.get(i).vx < player.get(i).r
-					|| player.get(i).x + player.get(i).vx > width - player.get(i).r) {
-				if (player.get(i).x + player.get(i).vx < player.get(i).r) { // left wall
-					player.get(i).x = player.get(i).r;
-					player.get(i).vx = 0; // change x direct
-				} else { // right wall
-					player.get(i).x = width - player.get(i).r;
-					player.get(i).vx = 0; // change x direct
-				}
-			}
-			if (player.get(i).y + player.get(i).vy < player.get(i).r
-					|| player.get(i).y + player.get(i).vy > height - player.get(i).r) {
-				if (player.get(i).y + player.get(i).vy < player.get(i).r) { // top wall
-					player.get(i).y = player.get(i).r;
-					player.get(i).vy = 0;
-				} else { // bottom wall
-					player.get(i).y = height - player.get(i).r;
-					player.get(i).vy = 0;
-				}
-			}
-		}
-		
-		// 공의 마찰력
-		if (player.get(0).vx > 0.04) {
-			player.get(0).vx -= 0.04;
-		} else if (player.get(0).vx < -0.04) {
-			player.get(0).vx += 0.04;
-		}
-		if (player.get(0).vy > 0.04) {
-			player.get(0).vy -= 0.04;
-		} else if (player.get(0).vy < -0.04) {
-			player.get(0).vy += 0.04;
-		}
-		if (player.get(0).vx < 0.15 && player.get(0).vx > -0.15) {
-			player.get(0).vx = 0;
-		} else if (player.get(0).vy < 0.15 && player.get(0).vy > -0.15) {
-			player.get(0).vy = 0;
-		}
-		// 공 좌표 변환
-		player.get(0).x += player.get(0).vx;
-		player.get(0).y += player.get(0).vy;
-
-		// 플레이어의 마찰력
-		for (i = 1; i < player.size(); i++) {
-			if (player.get(i).vx > 0.1) {
-				player.get(i).vx -= 0.1;
-			} else if (player.get(i).vx < -0.1) {
-				player.get(i).vx += 0.1;
-			}
-			if (player.get(i).vy > 0.1) {
-				player.get(i).vy -= 0.1;
-			} else if (player.get(i).vy < -0.1) {
-				player.get(i).vy += 0.1;
-			}
-			if (player.get(i).vx < 0.1 && player.get(i).vx > -0.1) {
-				player.get(i).vx = 0;
-			} else if (player.get(i).vy < 0.1 && player.get(i).vy > -0.1) {
-				player.get(i).vy = 0;
-			}
-			// 플레이어 좌표 변환
-			player.get(i).x += player.get(i).vx;
-			player.get(i).y += player.get(i).vy;
-		}
 
 	}
 
@@ -252,8 +102,8 @@ public class GUI extends PApplet {
 			}
 		}
 		
-		ClientController.vx = player.get(myNum).vx;
-		ClientController.vy = player.get(myNum).vy;
+		//ClientController.vx = player.get(myNum).vx;
+		//ClientController.vy = player.get(myNum).vy;
 	}
 
 	void setBoard() {
@@ -331,5 +181,170 @@ public class GUI extends PApplet {
 			fill(clr);
 			ellipse(x, y, r * 2, r * 2);
 		}
+	}
+	
+	synchronized void compute() {
+		for (i = 0; i < player.size(); i++) {
+			for (j = 0; j < player.size(); j++) {
+				if (i != j) {
+					float dx = player.get(i).x - player.get(j).x;
+					float dy = player.get(i).y - player.get(j).y;
+					float dab = abs(sqrt(dx * dx + dy * dy));
+
+					if (dab <= player.get(i).r + player.get(j).r) { // 두 공 및 플레이어 충돌 시
+						float sinTheta = dy / abs(sqrt(dx * dx + dy * dy));
+						float cosTheta = dx / abs(sqrt(dx * dx + dy * dy));
+						float vxAp = (player.get(i).m - e * player.get(j).m) / (player.get(i).m + player.get(j).m)
+								* (player.get(i).vx * cosTheta + player.get(i).vy * sinTheta)
+								+ (player.get(j).m + e * player.get(j).m) / (player.get(i).m + player.get(j).m)
+										* (player.get(j).vx * cosTheta + player.get(j).vy * sinTheta);
+						float vxBp = (player.get(i).m + e * player.get(i).m) / (player.get(i).m + player.get(j).m)
+								* (player.get(i).vx * cosTheta + player.get(i).vy * sinTheta)
+								+ (player.get(j).m - e * player.get(i).m) / (player.get(i).m + player.get(j).m)
+										* (player.get(j).vx * cosTheta + player.get(j).vy * sinTheta);
+						float vyAp = player.get(i).vx * (-sinTheta) + player.get(i).vy * cosTheta;
+						float vyBp = player.get(j).vx * (-sinTheta) + player.get(j).vy * cosTheta;
+
+						player.get(i).vx = vxAp * cosTheta + vyAp * (-sinTheta);
+						player.get(i).vy = vxAp * sinTheta + vyAp * cosTheta;
+						player.get(j).vx = vxBp * cosTheta + vyBp * (-sinTheta);
+						player.get(j).vy = vxBp * sinTheta + vyBp * cosTheta;
+
+						// 플레이어간 겹침 방지
+						float angleAB = atan2(dy, dx);
+						float angleplayer = atan2(-dy, -dx);
+						float moveToDistance = abs(player.get(i).r + player.get(j).r) - dab;
+						player.get(i).x = player.get(i).x + moveToDistance * cos(angleAB);
+						player.get(j).x = player.get(j).x + moveToDistance * cos(angleplayer);
+
+						player.get(i).vy *= 0.9;
+						player.get(i).vx *= 0.9;
+						player.get(j).vx *= 0.9;
+						player.get(j).vy *= 0.9;
+					}
+				}
+			}
+		}
+		
+		// 왼쪽 골대에 들어간 경우
+		if (player.get(0).x < 100 && player.get(0).x > 50 && player.get(0).y < 440 && player.get(0).y > 240) {
+			gameset = true;
+			rightScore += 1;
+		}
+		// 오른쪽 골대에 들어간 경우
+		if (player.get(0).x < 1270 && player.get(0).x > 1220 && player.get(0).y < 440 && player.get(0).y > 240) {
+			leftScore += 1;
+			gameset = true;
+		}
+		if (gameset) {
+			player.get(0).vx = 0;
+			player.get(0).vy = 0;
+			player.get(0).x = 660;
+			player.get(0).y = 340;
+			for (i = 1; i <= leftPlayer; i++) {
+				player.get(i).vx = 0;
+				player.get(i).vy = 0;
+				player.get(i).x = 200;
+				player.get(i).y = 250 + i * 100;
+			}
+			for (i = leftPlayer + 1; i <= leftPlayer + rightPlayer; i++) {
+				player.get(i).vx = 0;
+				player.get(i).vy = 0;
+				player.get(i).x = 1120;
+				player.get(i).y = 250 + i * 100;
+			}
+		}
+	
+		
+		// 공 벽에 부딪친 경우
+		if (player.get(0).x + player.get(0).vx < player.get(0).r + 100
+				|| player.get(0).x + player.get(0).vx > width - player.get(0).r - 100) {
+			if (player.get(0).x + player.get(0).vx < player.get(0).r + 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // left wall
+				player.get(0).x = player.get(0).r + 100;
+				player.get(0).vx *= -0.7; // change x direct
+			} else if (player.get(0).x + player.get(0).vx > width - player.get(0).r - 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // right wall
+				player.get(0).x = width - player.get(0).r - 100;
+				player.get(0).vx *= -0.7; // change x direct
+			}
+			player.get(0).vy *= 0.7;
+		}
+		if (player.get(0).y + player.get(0).vy < player.get(0).r + 80
+				|| player.get(0).y + player.get(0).vy > height - player.get(0).r - 80) {
+			if (player.get(0).y + player.get(0).vy < player.get(0).r + 80) { // top wall
+				player.get(0).y = player.get(0).r + 80;
+				player.get(0).vy *= -0.7;
+			} else { // bottom wall
+				player.get(0).y = height - player.get(0).r - 80;
+				player.get(0).vy *= -0.7;
+			}
+			player.get(0).vx *= 0.7;
+		}
+
+		// 플레이어들이 벽에 부딪힌 경우
+		for (i = 1; i < player.size(); i++) {
+			if (player.get(i).x + player.get(i).vx < player.get(i).r
+					|| player.get(i).x + player.get(i).vx > width - player.get(i).r) {
+				if (player.get(i).x + player.get(i).vx < player.get(i).r) { // left wall
+					player.get(i).x = player.get(i).r;
+					player.get(i).vx = 0; // change x direct
+				} else { // right wall
+					player.get(i).x = width - player.get(i).r;
+					player.get(i).vx = 0; // change x direct
+				}
+			}
+			if (player.get(i).y + player.get(i).vy < player.get(i).r
+					|| player.get(i).y + player.get(i).vy > height - player.get(i).r) {
+				if (player.get(i).y + player.get(i).vy < player.get(i).r) { // top wall
+					player.get(i).y = player.get(i).r;
+					player.get(i).vy = 0;
+				} else { // bottom wall
+					player.get(i).y = height - player.get(i).r;
+					player.get(i).vy = 0;
+				}
+			}
+		}
+		
+		// 공의 마찰력
+		if (player.get(0).vx > 0.04) {
+			player.get(0).vx -= 0.04;
+		} else if (player.get(0).vx < -0.04) {
+			player.get(0).vx += 0.04;
+		}
+		if (player.get(0).vy > 0.04) {
+			player.get(0).vy -= 0.04;
+		} else if (player.get(0).vy < -0.04) {
+			player.get(0).vy += 0.04;
+		}
+		if (player.get(0).vx < 0.15 && player.get(0).vx > -0.15) {
+			player.get(0).vx = 0;
+		} else if (player.get(0).vy < 0.15 && player.get(0).vy > -0.15) {
+			player.get(0).vy = 0;
+		}
+		// 공 좌표 변환
+		player.get(0).x += player.get(0).vx;
+		player.get(0).y += player.get(0).vy;
+
+		// 플레이어의 마찰력
+		for (i = 1; i < player.size(); i++) {
+			if (player.get(i).vx > 0.06) {
+				player.get(i).vx -= 0.06;
+			} else if (player.get(i).vx < -0.06) {
+				player.get(i).vx += 0.06;
+			}
+			if (player.get(i).vy > 0.06) {
+				player.get(i).vy -= 0.06;
+			} else if (player.get(i).vy < -0.06) {
+				player.get(i).vy += 0.06;
+			}
+			if (player.get(i).vx < 0.1 && player.get(i).vx > -0.1) {
+				player.get(i).vx = 0;
+			} else if (player.get(i).vy < 0.1 && player.get(i).vy > -0.1) {
+				player.get(i).vy = 0;
+			}
+			// 플레이어 좌표 변환
+			player.get(i).x += player.get(i).vx;
+			player.get(i).y += player.get(i).vy;
+		}
+
 	}
 }

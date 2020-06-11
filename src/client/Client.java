@@ -16,10 +16,10 @@ import java.util.Vector;
 public class Client {
 	private CMClientStub clientStub;
 	private ClientHandler clientHandler;
+
+	private GUI gui;
 	
-	Engine engine;
-	GUI gui;
-	int state, cmd;
+	private int state, cmd;
 	
 	boolean superPeer;
 	
@@ -154,16 +154,23 @@ public class Client {
 //		multicast(cme);
 //	}
 	
-public void createRoom(String roomName) {
+	public void createRoom(String roomName) {
+		boolean bRequestResult = clientStub.requestSessionInfo();
+		if(bRequestResult)
+			System.out.println("successfully sent the session-info request.");
+		else
+			System.err.println("failed the session-info request!");
+		System.out.println("======");
 		
 		clientStub.leaveSession();
 		
-		clientStub.joinSession("Session2");
+		clientStub.joinSession("session2");
 		
 		
 		CMInteractionInfo interInfo = clientStub.getCMInfo().getInteractionInfo();
 		CMUser myself = interInfo.getMyself();
 		CMSession session = interInfo.findSession(myself.getCurrentSession());
+		
 		
 		session.createGroup(roomName, myself.getHost(), myself.getUDPPort()); 
 		clientStub.changeGroup(roomName);
@@ -171,7 +178,7 @@ public void createRoom(String roomName) {
 	
 	public void enterRoom(String roomName) {
 		CMDummyEvent due = new CMDummyEvent();
-		due.setDummyInfo("Enter@#$" + roomName);
+		due.setDummyInfo("enter " + roomName);
 		//
 		due.setSender("");
 		
@@ -255,21 +262,35 @@ public void createRoom(String roomName) {
 	}
 	
 	
-	public void init(Client client) {
+	public void init() {
 		// TODO Auto-generated method stub		
 		boolean ret;
-		client.clientHandler.setClient(client); //init 
+		this.clientHandler.setClient(this); //init 
 		
-		//clientStub.startCM();
+		clientStub.startCM();
 		
 		//get client name!
+		ret = clientStub.loginCM("User1", "");
 		
-		ret = clientStub.joinSession("Session 1"); // Enter Lobby Session
+		//ret = clientStub.joinSession("session1"); // Enter Lobby Session
 		if(ret)
-			System.out.println("successfully sent the session-join request.");
+			System.out.println(ret + ": successfully sent the session-join request.");
 		else
-			System.err.println("failed the session-join request!");
+			System.err.println(ret + ": failed the session-join request!");
 		
 	}	
 	
+	public static void main(String[] args) {
+		Client client = new Client(0,"session1","g1");
+		client.init();
+		boolean a = true;
+		
+		while(true) {
+			if(a) {
+				client.createRoom("aaa");
+				client.enterRoom("aaa");
+				a=false;
+			}
+		}
+	}
 }
