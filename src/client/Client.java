@@ -16,7 +16,6 @@ public class Client {
 	private CMClientStub clientStub;
 	private ClientHandler clientHandler;
 
-	private Engine engine;
 	private GUI gui;
 	
 	Player player;
@@ -142,7 +141,7 @@ public class Client {
 		multicast(cme);
 	}
 	
-public void createRoom(String roomName) {
+	public void createRoom(String roomName) {
 		
 		clientStub.leaveSession();
 		

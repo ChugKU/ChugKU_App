@@ -1,6 +1,7 @@
 package server;
 
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
+import java.util.Scanner;
 
 public class Server {
 	private CMServerStub serverStub; //send
@@ -9,6 +10,7 @@ public class Server {
 	public Server() {
 		serverStub = new CMServerStub();
 		serverHandler = new ServerHandler(serverStub);
+		serverStub.setAppEventHandler(serverHandler);
 	}
 	
 	public CMServerStub getServerStub() {
@@ -20,6 +22,11 @@ public class Server {
 	}
 	
 	public static void main(String args[]) {
+		Server server = new Server();
+		Scanner scanner = new Scanner(System.in);
 		
+		while(true) {
+			scanner.nextLine();
+		}
 	}
 }
