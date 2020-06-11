@@ -24,6 +24,7 @@ public class ServerHandler implements CMAppEventHandler {
 	public ServerHandler(CMServerStub serverstub){
 		serverStub = serverstub;
 		gameSession = new CMSession("sessionName", "sessonAddress", 0); //TODO should be set
+		roomList = new Vector<CMGroup>();
 	}
 	
 	@Override
