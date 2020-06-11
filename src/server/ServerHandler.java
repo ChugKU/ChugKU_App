@@ -9,6 +9,7 @@ import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
@@ -31,6 +32,9 @@ public class ServerHandler implements CMAppEventHandler {
 		switch(event.getType()) {
 		case CMInfo.CM_SESSION_EVENT: //server in&out
 			processSessionEvent(event);
+			break;
+		case CMInfo.CM_INTEREST_EVENT:
+			processInterestEvent(event);
 			break;
 		case CMInfo.CM_DUMMY_EVENT:
 			processDummyEvent(event);
@@ -66,6 +70,23 @@ public class ServerHandler implements CMAppEventHandler {
 			break;
 		case CMSessionEvent.INTENTIONALLY_DISCONNECT:
 			System.err.println("Intentionally disconnected all channels from ["+sessionEvent.getChannelName()+"]!");
+			break;
+		default:
+			return;
+		}
+	}
+	
+	private void processInterestEvent(CMEvent event) {
+		CMInterestEvent interestEvent = (CMInterestEvent)event;
+		switch(interestEvent.getID())
+		{
+		case CMInterestEvent.USER_ENTER:
+			System.out.println("["+interestEvent.getUserName()+"] enters group("+interestEvent.getCurrentGroup()+") in session("
+					+interestEvent.getHandlerSession()+").");
+			break;
+		case CMInterestEvent.USER_LEAVE:
+			System.out.println("["+interestEvent.getUserName()+"] leaves group("+interestEvent.getHandlerGroup()+") in session("
+					+interestEvent.getHandlerSession()+").");
 			break;
 		default:
 			return;
