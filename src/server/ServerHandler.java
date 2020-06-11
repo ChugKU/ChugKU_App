@@ -74,7 +74,7 @@ public class ServerHandler implements CMAppEventHandler {
 	
 	private void processDummyEvent(CMEvent event) {
 		CMDummyEvent dummyEvent = (CMDummyEvent)event;
-		String[] splited = dummyEvent.getDummyInfo().split("@#$");
+		String[] splited = dummyEvent.getDummyInfo().split(" ");
 		String command = splited[0];
 		String roomName = splited[1];
 		
@@ -92,23 +92,23 @@ public class ServerHandler implements CMAppEventHandler {
 			}
 			
 			if(dest==null) {//if room destroyed right after the request
-				newDummyEvent.setDummyInfo("deny@#$"+roomName);
+				newDummyEvent.setDummyInfo("deny "+roomName);
 			}
 			else {
 				Vector<CMUser> member = dest.getGroupUsers().getAllMembers();
 
-				if(member.size()==1) newDummyEvent.setDummyInfo("okay@#$"+roomName);
-				else if(member.size()==4) newDummyEvent.setDummyInfo("deny@#$"+roomName);
+				if(member.size()==1) newDummyEvent.setDummyInfo("okay "+roomName);
+				else if(member.size()==4) newDummyEvent.setDummyInfo("deny "+roomName);
 				else {
 					//if ingGame==true, return deny / else return okay
 					CMDummyEvent checkGame = new CMDummyEvent();
-					checkGame.setDummyInfo("ingGame@#$"+roomName);
+					checkGame.setDummyInfo("ingGame "+roomName);
 					checkGame.setID(new Random().nextInt());
 					
 					CMDummyEvent received = (CMDummyEvent)serverStub.sendrecv(checkGame, member.get(0).getName(), CMInfo.CM_DUMMY_EVENT, checkGame.getID(), 1);
 										
-					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("okay@#$"+roomName);
-					else newDummyEvent.setDummyInfo("deny@#$"+roomName);
+					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("okay "+roomName);
+					else newDummyEvent.setDummyInfo("deny "+roomName);
 				}
 				
 				serverStub.send(newDummyEvent, dummyEvent.getSender());
