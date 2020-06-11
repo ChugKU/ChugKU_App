@@ -47,10 +47,6 @@ public class Server {
 		int command = -1;
 				
 		while(isRun) {
-			//Server object
-			//어느 세션 어느 그룹에 머가 얼마만 잇는지 -> test code에서 가져오기
-			//1. buffer reader -> command 받아서 command 통해서 위 확인
-			//2. switch -> 확인 
 			System.out.println("Type \"0\" for menu.");
 			System.out.print("> ");
 			
