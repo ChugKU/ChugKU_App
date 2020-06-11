@@ -155,6 +155,13 @@ public class Client {
 //	}
 	
 	public void createRoom(String roomName) {
+		long   save_time = System.currentTimeMillis();
+		long   curr_time = 0;
+		while ( (curr_time - save_time) < 1000 )
+		{
+			curr_time = System.currentTimeMillis();
+		}
+		
 		boolean bRequestResult = clientStub.requestSessionInfo();
 		if(bRequestResult)
 			System.out.println("successfully sent the session-info request.");
@@ -163,13 +170,13 @@ public class Client {
 		System.out.println("======");
 		
 		clientStub.leaveSession();
-		long   save_time = System.currentTimeMillis();
-		long   curr_time = 0;
+		save_time = System.currentTimeMillis();
+		curr_time = 0;
 		while ( (curr_time - save_time) < 1000 )
 		{
 			curr_time = System.currentTimeMillis();
 		}
-		
+		System.out.println("join session2");
 		clientStub.joinSession("session2");
 		
 		
@@ -197,6 +204,7 @@ public class Client {
 		due.setSender("");
 		
 		clientStub.send(due, "SERVER");
+		
 	}
 	
 	public void exitRoom() {
@@ -284,7 +292,7 @@ public class Client {
 		clientStub.startCM();
 
 		//get client name!
-		ret = clientStub.loginCM("User1", "");
+		ret = clientStub.loginCM("User3", "");
 		
 		//ret = clientStub.joinSession("session1"); // Enter Lobby Session
 		if(ret)
@@ -300,9 +308,15 @@ public class Client {
 		boolean a = true;
 		
 		while(true) {
+			long   save_time = System.currentTimeMillis();
+			long   curr_time = 0;
+			while ( (curr_time - save_time) < 5000 )
+			{
+				curr_time = System.currentTimeMillis();
+			};
 			if(a) {
-				client.createRoom("aaa");
-				client.enterRoom("aaa");
+				System.out.println("enterRoom");
+				client.enterRoom("g1");
 				a=false;
 			}
 		}

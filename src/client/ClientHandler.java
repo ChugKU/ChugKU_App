@@ -132,14 +132,14 @@ public class ClientHandler implements CMAppEventHandler {
 	
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
-		
+		System.out.println("Dummy Event: "+due.getDummyInfo());
 		// Parse Client-Server Request
 		String inputStr[] = due.getDummyInfo().split(" ");
 		
 		switch (inputStr[0]) {
 		case "okay":
 			clientStub.leaveSession();
-			clientStub.joinSession("Session2");
+			clientStub.joinSession("session2");
 			
 			clientStub.changeGroup(inputStr[1]);
 			break;

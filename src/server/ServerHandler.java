@@ -96,17 +96,20 @@ public class ServerHandler implements CMAppEventHandler {
 	
 	private void processDummyEvent(CMEvent event) {
 		CMDummyEvent dummyEvent = (CMDummyEvent)event;
+		System.out.println("Dummy Event: " + dummyEvent.getDummyInfo());
 		String[] splited = dummyEvent.getDummyInfo().split(" ");
 		String command = splited[0];
 		String roomName = splited[1];
 		
 		if(command.equals("enter")) {
+			System.out.println("Enter?");
 			roomList = gameSession.getGroupList();
 			Iterator<CMGroup> itr = roomList.iterator();
 			CMGroup dest = null;
 			CMDummyEvent newDummyEvent = new CMDummyEvent();
 			
 			while(itr.hasNext()) {
+				System.out.println(itr.next().getGroupName() + " " + roomName);
 				if(itr.next().getGroupName().equals(roomName)) {
 					dest = itr.next();
 					break;
