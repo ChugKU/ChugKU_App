@@ -89,6 +89,7 @@ public class ServerHandler implements CMAppEventHandler {
 					+interestEvent.getHandlerSession()+").");
 			break;
 		default:
+			System.err.println("UNEXPECTED EVENT"+event.getType());
 			return;
 		}
 	}
