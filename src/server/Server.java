@@ -47,7 +47,6 @@ public class Server {
 		int command = -1;
 				
 		while(isRun) {
-			
 			System.out.println("Type \"0\" for menu.");
 			System.out.print("> ");
 			
