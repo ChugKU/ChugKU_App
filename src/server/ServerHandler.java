@@ -13,18 +13,19 @@ import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerHandler implements CMAppEventHandler {
 	private CMServerStub serverStub;
-	CMSession gameSession;
-	
+	CMSession gameSession;	
 	Vector<CMGroup> roomList;
 	
 	public ServerHandler(CMServerStub serverstub){
 		serverStub = serverstub;
-		gameSession = new CMSession("sessionName", "sessonAddress", 0); //TODO should be set
-		roomList = new Vector<CMGroup>();
+		CMInteractionInfo interInfo = serverStub.getCMInfo().getInteractionInfo();
+		gameSession = interInfo.getSessionList().elementAt(1);
+		roomList = gameSession.getGroupList();
 	}
 	
 	@Override
