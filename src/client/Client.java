@@ -163,6 +163,12 @@ public class Client {
 		System.out.println("======");
 		
 		clientStub.leaveSession();
+		long   save_time = System.currentTimeMillis();
+		long   curr_time = 0;
+		while ( (curr_time - save_time) < 1000 )
+		{
+			curr_time = System.currentTimeMillis();
+		}
 		
 		clientStub.joinSession("session2");
 		
@@ -173,6 +179,14 @@ public class Client {
 		
 		
 		session.createGroup(roomName, myself.getHost(), myself.getUDPPort()); 
+		
+		save_time = System.currentTimeMillis();
+		curr_time = 0;
+		while ( (curr_time - save_time) < 1000 )
+		{
+			curr_time = System.currentTimeMillis();
+		}
+		
 		clientStub.changeGroup(roomName);
 	}
 	
@@ -268,7 +282,7 @@ public class Client {
 		this.clientHandler.setClient(this); //init 
 		
 		clientStub.startCM();
-		
+
 		//get client name!
 		ret = clientStub.loginCM("User1", "");
 		
