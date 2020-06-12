@@ -5,27 +5,17 @@ import java.util.ArrayList;
 
 public class GUI extends PApplet {
 
-	public ArrayList<Player> player = new ArrayList<Player>();
-	Client controller;
-	
-	
+	static ArrayList<Player> player = new ArrayList<Player>();
+
 	float e = 1; // elastic modulus
-	boolean gameset = false;
-	boolean gameover = false;
-	boolean superPeer = false;
+	static int gameset = 0;
+	static boolean gameover = false;
+	static boolean superPeer = true;
 	static int leftPlayer, rightPlayer, myNum;
 	int i, j = 0;
-	boolean start = true;
-	int leftScore = 0, rightScore = 0;
-	
-	public static void main(String[] args) {
-		leftPlayer=1;
-		rightPlayer=1;
-		myNum=1;
-		
-		PApplet.main(GUI.class);
-		
-	}
+	static boolean start = true;
+	static int leftScore = 0, rightScore = 0;
+	static int gamemode = 1;
 
 	// method used only for setting the size of the window
 	public void settings() {
@@ -37,22 +27,45 @@ public class GUI extends PApplet {
 	public void setup() {
 		ellipseMode(CENTER);
 
-		player.add(new Player(7, 660, 340, 0xe6e6fa)); // 첫번째 플레이어는 항상 공
+		player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // 첫번째 플레이어는 항상 공 = 인덱스 0 
 
 		for (i = 0; i < leftPlayer; i++) {
-			player.add(new Player(10, 200, 250 + i * 100, 0xe6e6fa));
+			player.add(new Player(i + 1, 10, 20, 200, 250 + i * 100, 0xe6e6fa));
 		}
 		for (i = 0; i < rightPlayer; i++) {
-			player.add(new Player(10, 1120, 250 + i * 100, 0xe6e6fa));
+			player.add(new Player(leftPlayer + 1 + i, 10, 20, 1120, 250 + i * 100, 0xe6e6fa));
 		}
 	}
 
 	// identical use to draw in Prcessing IDE
 	public void draw() {
-		if(superPeer) {
-			compute();
-		} compute();
+
 		setBoard();
+		
+		if (gameset > 0) {
+			player.get(0).vx = 0;
+			player.get(0).vy = 0;
+			player.get(0).x = 660;
+			player.get(0).y = 340;
+			for (i = 1; i <= leftPlayer; i++) {
+				player.get(i).vx = 0;
+				player.get(i).vy = 0;
+				player.get(i).x = 200;
+				player.get(i).y = 250 + (i - 1) * 100;
+			}
+			for (i = leftPlayer + 1; i <= leftPlayer + rightPlayer; i++) {
+				player.get(i).vx = 0;
+				player.get(i).vy = 0;
+				player.get(i).x = 1120;
+				player.get(i).y = 250 + (i - leftPlayer - 1) * 100;
+			}
+			
+			return;
+		}
+
+		if (superPeer) {
+			engine();
+		}
 
 	}
 
@@ -66,44 +79,26 @@ public class GUI extends PApplet {
 	}
 
 	public void keyReleased() {
-		if (key == ' ' && dist(player.get(myNum).x, player.get(myNum).y, player.get(0).x, player.get(0).y) < 55) {
-			player.get(0).vx = (float) ((player.get(0).x - player.get(myNum).x) * 0.18);
-			player.get(0).vy = (float) ((player.get(0).y - player.get(myNum).y) * 0.18);
-		}
 	}
 	
 	public void keyPressed() {
 		if (key == ' ' && dist(player.get(myNum).x, player.get(myNum).y, player.get(0).x, player.get(0).y) < 55) {
-			player.get(0).vx = (float) ((player.get(0).x - player.get(myNum).x) * 0.18);
-			player.get(0).vy = (float) ((player.get(0).y - player.get(myNum).y) * 0.18);
+			player.get(0).vx = (float) ((player.get(0).x - player.get(myNum).x) * 0.15);
+			player.get(0).vy = (float) ((player.get(0).y - player.get(myNum).y) * 0.15);
 		}
 	}
 
 	public void keyTyped() {
 		if (key == 'a') {
-			player.get(myNum).vx = -3.8f;
+			player.get(myNum).vx = -3.0f;
 		} else if (key == 'd') {
-			player.get(myNum).vx = 3.8f;
+			player.get(myNum).vx = 3.0f;
 		} else if (key == 'w') {
-			player.get(myNum).vy = -3.8f;
+			player.get(myNum).vy = -3.0f;
 		} else if (key == 's') {
-			player.get(myNum).vy = 3.8f;
+			player.get(myNum).vy = 3.0f;
 		}
 		
-		if (key == CODED) {
-			if (keyCode == LEFT) {
-				player.get(3).vx = -3.8f;
-			} else if (keyCode == RIGHT) {
-				player.get(3).vx = 3.8f;
-			} else if (keyCode == UP) {
-				player.get(3).vy = -3.8f;
-			} else if (keyCode == DOWN) {
-				player.get(3).vy = 3.8f;
-			}
-		}
-		
-		//ClientController.vx = player.get(myNum).vx;
-		//ClientController.vy = player.get(myNum).vy;
 	}
 
 	void setBoard() {
@@ -137,53 +132,27 @@ public class GUI extends PApplet {
 		for (i = 0; i < player.size(); i++) {
 			player.get(i).update();
 		}
-		textSize(18);
+		textSize(30);
 		fill(14, 226, 240);
-		text("Score Board", 610, 20);
-		text(leftScore, 640, 40);
-		text(rightScore, 670, 40);
+		text("Score Board", 580, 30);
+		text(leftScore, 630, 60);
+		text(":", 655, 60);
+		text(rightScore, 670, 60);
 
-		if (gameset) {
-			gameset = false;
+		if (gameset == 5) {
 			textSize(64);
-			
-			text("GOAL!!!", 630, 230);
+			text("GOAL!!!", 562, 210);
+			gameset--;
 			delay(1000);
-			text("3", 630, 230);
+		} else if (gameset > 0) {
+			textSize(64);
+			text(gameset - 1, 640, 210);
+			gameset--;
 			delay(1000);
-			text("2", 630, 230);
-			delay(1000);
-			text("1", 630, 230);
-			delay(1000);
-		}
-	}
-
-	class Player {
-		float m; // Mass
-		float x;
-		float y;
-		float vx;
-		float vy;
-		float r; // radius
-		int clr;
-
-		Player(float mass, float x, float y, int clr) {
-			this.m = mass;
-			this.r = 2 * m;
-			this.vx = 0;
-			this.vy = 0;
-			this.x = x;
-			this.y = y;
-			this.clr = clr;
-		}
-
-		void update() {
-			fill(clr);
-			ellipse(x, y, r * 2, r * 2);
-		}
+		}		
 	}
 	
-	synchronized void compute() {
+	void engine() {	
 		for (i = 0; i < player.size(); i++) {
 			for (j = 0; j < player.size(); j++) {
 				if (i != j) {
@@ -217,10 +186,10 @@ public class GUI extends PApplet {
 						player.get(i).x = player.get(i).x + moveToDistance * cos(angleAB);
 						player.get(j).x = player.get(j).x + moveToDistance * cos(angleplayer);
 
-						player.get(i).vy *= 0.9;
-						player.get(i).vx *= 0.9;
-						player.get(j).vx *= 0.9;
-						player.get(j).vy *= 0.9;
+						player.get(i).vy *= 0.8;
+						player.get(i).vx *= 0.8;
+						player.get(j).vx *= 0.8;
+						player.get(j).vy *= 0.8;
 					}
 				}
 			}
@@ -228,59 +197,40 @@ public class GUI extends PApplet {
 		
 		// 왼쪽 골대에 들어간 경우
 		if (player.get(0).x < 100 && player.get(0).x > 50 && player.get(0).y < 440 && player.get(0).y > 240) {
-			gameset = true;
+			gameset = 5;
 			rightScore += 1;
 		}
 		// 오른쪽 골대에 들어간 경우
 		if (player.get(0).x < 1270 && player.get(0).x > 1220 && player.get(0).y < 440 && player.get(0).y > 240) {
 			leftScore += 1;
-			gameset = true;
+			gameset = 5;
 		}
-		if (gameset) {
-			player.get(0).vx = 0;
-			player.get(0).vy = 0;
-			player.get(0).x = 660;
-			player.get(0).y = 340;
-			for (i = 1; i <= leftPlayer; i++) {
-				player.get(i).vx = 0;
-				player.get(i).vy = 0;
-				player.get(i).x = 200;
-				player.get(i).y = 250 + i * 100;
-			}
-			for (i = leftPlayer + 1; i <= leftPlayer + rightPlayer; i++) {
-				player.get(i).vx = 0;
-				player.get(i).vy = 0;
-				player.get(i).x = 1120;
-				player.get(i).y = 250 + i * 100;
-			}
-		}
-	
 		
 		// 공 벽에 부딪친 경우
 		if (player.get(0).x + player.get(0).vx < player.get(0).r + 100
 				|| player.get(0).x + player.get(0).vx > width - player.get(0).r - 100) {
 			if (player.get(0).x + player.get(0).vx < player.get(0).r + 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // left wall
 				player.get(0).x = player.get(0).r + 100;
-				player.get(0).vx *= -0.7; // change x direct
+				player.get(0).vx *= -0.8; // change x direct
 			} else if (player.get(0).x + player.get(0).vx > width - player.get(0).r - 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // right wall
 				player.get(0).x = width - player.get(0).r - 100;
-				player.get(0).vx *= -0.7; // change x direct
+				player.get(0).vx *= -0.8; // change x direct
 			}
-			player.get(0).vy *= 0.7;
+			player.get(0).vy *= 0.8;
 		}
 		if (player.get(0).y + player.get(0).vy < player.get(0).r + 80
 				|| player.get(0).y + player.get(0).vy > height - player.get(0).r - 80) {
 			if (player.get(0).y + player.get(0).vy < player.get(0).r + 80) { // top wall
 				player.get(0).y = player.get(0).r + 80;
-				player.get(0).vy *= -0.7;
+				player.get(0).vy *= -0.8;
 			} else { // bottom wall
 				player.get(0).y = height - player.get(0).r - 80;
-				player.get(0).vy *= -0.7;
+				player.get(0).vy *= -0.8;
 			}
-			player.get(0).vx *= 0.7;
+			player.get(0).vx *= 0.8;
 		}
 
-		// 플레이어들이 벽에 부딪힌 경우
+		// 플레이어들이 가장자리 벽에 부딪힌 경우
 		for (i = 1; i < player.size(); i++) {
 			if (player.get(i).x + player.get(i).vx < player.get(i).r
 					|| player.get(i).x + player.get(i).vx > width - player.get(i).r) {
@@ -326,25 +276,77 @@ public class GUI extends PApplet {
 
 		// 플레이어의 마찰력
 		for (i = 1; i < player.size(); i++) {
-			if (player.get(i).vx > 0.06) {
-				player.get(i).vx -= 0.06;
-			} else if (player.get(i).vx < -0.06) {
-				player.get(i).vx += 0.06;
+			if (player.get(i).vx > 0.04) {
+				player.get(i).vx -= 0.04;
+			} else if (player.get(i).vx < -0.04) {
+				player.get(i).vx += 0.04;
 			}
-			if (player.get(i).vy > 0.06) {
-				player.get(i).vy -= 0.06;
-			} else if (player.get(i).vy < -0.06) {
-				player.get(i).vy += 0.06;
+			if (player.get(i).vy > 0.04) {
+				player.get(i).vy -= 0.04;
+			} else if (player.get(i).vy < -0.04) {
+				player.get(i).vy += 0.04;
 			}
-			if (player.get(i).vx < 0.1 && player.get(i).vx > -0.1) {
+			if (player.get(i).vx < 0.08 && player.get(i).vx > -0.08) {
 				player.get(i).vx = 0;
-			} else if (player.get(i).vy < 0.1 && player.get(i).vy > -0.1) {
+			} else if (player.get(i).vy < 0.08 && player.get(i).vy > -0.08) {
 				player.get(i).vy = 0;
 			}
 			// 플레이어 좌표 변환
 			player.get(i).x += player.get(i).vx;
 			player.get(i).y += player.get(i).vy;
 		}
+	}
+	
+	 class Player {
+		
+		int id;
+		float m; // Mass
+		float x;
+		float y;
+		float vx;
+		float vy;
+		float r; // radius
+		int clr;
 
+		Player(int id, float mass, float r, float x, float y, int clr) {
+			this.id = id;
+			this.m = mass;
+			this.r = r;
+			this.vx = 0;
+			this.vy = 0;
+			this.x = x;
+			this.y = y;
+			this.clr = clr;
+		}
+
+		void update() {
+			fill(clr);
+			ellipse(x, y, r * 2, r * 2);
+			if (id > 0) {
+				textSize(30);
+				fill(0, 0, 0);
+				text(id, x - 9, y + 11);
+			}
+		}
+	}
+	
+	public static void main(String[] args) {
+		
+		GUI.leftPlayer = 1;
+		GUI.rightPlayer = 1;
+		GUI.myNum = 1;
+		
+		PApplet.main(GUI.class);
+		try {
+			Thread.sleep(500);
+		} catch(InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
+		while(true) {
+			for (int i = 0; i <= GUI.leftPlayer + GUI.rightPlayer; i++) {
+				System.out.print(i + "번x:" + GUI.player.get(i).x + ", " + i + "번y:" + GUI.player.get(i).y + ", ");
+			}
+			System.out.println();
+		}
 	}
 }
