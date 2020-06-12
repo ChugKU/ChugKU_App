@@ -1,16 +1,23 @@
 package client;
 
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
+import kr.ac.konkuk.ccslab.cm.entity.CMGroupInfo;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMUserEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Vector;
 
 public class Client {
@@ -20,6 +27,7 @@ public class Client {
 	private GUI gui;
 	
 	private int state, cmd;
+	private boolean clientStart;
 	
 	boolean superPeer;
 	
@@ -52,6 +60,7 @@ public class Client {
 		this.group = group;
 		this.inRoom = false;
 		this.ingGame = false;
+		this.clientStart=true;
 		
 		playerList = new ArrayList<Player>();
 		
@@ -63,6 +72,7 @@ public class Client {
 		this.group = group;
 		
 		roomList = new ArrayList<String>();
+		playerID = new Random().nextInt(100000);
 	}
 	
 	//return "client application service" - interaction with CM
@@ -153,67 +163,100 @@ public class Client {
 //		cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(1)); //send kick=true
 //		multicast(cme);
 //	}
-	
-	public void createRoom(String roomName) {
-		long   save_time = System.currentTimeMillis();
-		long   curr_time = 0;
-		while ( (curr_time - save_time) < 1000 )
-		{
-			curr_time = System.currentTimeMillis();
+	public void run() {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		String cmd = null;
+		
+		while(clientStart) {
+			System.out.print("> ");
+			try {
+				cmd = br.readLine();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (cmd.contentEquals("enter")) {
+				enterRoom("g2");
+			} else if (cmd.contentEquals("exit")) {
+				exitRoom();
+			}
 		}
-		
-		boolean bRequestResult = clientStub.requestSessionInfo();
-		if(bRequestResult)
-			System.out.println("successfully sent the session-info request.");
-		else
-			System.err.println("failed the session-info request!");
-		System.out.println("======");
-		
-		clientStub.leaveSession();
-		save_time = System.currentTimeMillis();
-		curr_time = 0;
-		while ( (curr_time - save_time) < 1000 )
-		{
-			curr_time = System.currentTimeMillis();
-		}
-		System.out.println("join session2");
-		clientStub.joinSession("session2");
-		
-		
-		CMInteractionInfo interInfo = clientStub.getCMInfo().getInteractionInfo();
-		CMUser myself = interInfo.getMyself();
-		CMSession session = interInfo.findSession(myself.getCurrentSession());
-		
-		
-		session.createGroup(roomName, myself.getHost(), myself.getUDPPort()); 
-		
-		save_time = System.currentTimeMillis();
-		curr_time = 0;
-		while ( (curr_time - save_time) < 1000 )
-		{
-			curr_time = System.currentTimeMillis();
-		}
-		
-		clientStub.changeGroup(roomName);
 	}
 	
 	public void enterRoom(String roomName) {
-		CMDummyEvent due = new CMDummyEvent();
-		due.setDummyInfo("enter " + roomName);
+		boolean ret = clientStub.leaveSession();
+		CMSessionEvent se;
+		String sessionName = "session2";
 		
-		due.setSender("");
+		//delay(2sec)
+		wait_sec(2);
 		
-		clientStub.send(due, "SERVER");
-		
-		
+		if(ret) {
+			se = clientStub.syncJoinSession(sessionName);
+			
+			if(se != null) {
+				System.out.println("successfully joined a session that has ("+se.getGroupNum()+") groups.");
+			
+				// is room available?
+				if(!enterRoomRequest(roomName)) {
+					// return to original session
+					exitRoom();
+				}
+			} else {
+				System.err.println("failed the session-join request!");
+			}
+
+			return;
+		}
+		System.out.println("fail to exit session");
 		
 	}
 	
-	public void exitRoom() {
-		//session change
-		clientStub.leaveSession();
+	private boolean enterRoomRequest(String roomName) {
+		CMDummyEvent due,ans;
+		due = new CMDummyEvent();
+
+		ans = (CMDummyEvent) clientStub.sendrecv(due, "SERVER", CMInfo.CM_DUMMY_EVENT, playerID, 3000);	
 		
-		clientStub.joinSession("Session1");
+		if(ans != null) {
+			if(ans.getDummyInfo().contentEquals("okay")) {
+				clientStub.changeGroup(roomName);
+				return true;
+			}
+		} 
+		return false;
+	}
+	
+	public void exitRoom() {
+		System.out.println("leave session");
+		boolean ret = clientStub.leaveSession();
+		CMSessionEvent se;
+		String sessionName = "session1";
+		
+		//delay(2sec)
+		wait_sec(2);
+		
+		if(ret) {
+			se = clientStub.syncJoinSession(sessionName);
+			
+			if(se != null) 
+				System.out.println("successfully joined a session that has ("+se.getGroupNum()+") groups.");
+			else
+				System.err.println("failed the session-join request!");
+			return;
+		}
+		System.out.println("fail to exit session");
+	}
+	
+	private void wait_sec(long time) {
+		long   save_time = System.currentTimeMillis();
+		long   curr_time = 0;
+		long	wait_time = time*1000;
+		while ( (curr_time - save_time) < wait_time)
+		{
+			curr_time = System.currentTimeMillis();
+		}
 	}
 	// ***** user interaction *****
 
@@ -293,34 +336,36 @@ public class Client {
 		
 		clientStub.startCM();
 
+		wait_sec(2);
+		
 		//get client name!
 		ret = clientStub.loginCM("User3", "");
 		
-		//ret = clientStub.joinSession("session1"); // Enter Lobby Session
+		wait_sec(2);
+		
+		boolean bRequestResult = false;
+		System.out.println("====== request session info from default server");
+		bRequestResult = clientStub.requestSessionInfo();
+		if(bRequestResult)
+			System.out.println("successfully sent the session-info request.");
+		else
+			System.err.println("failed the session-info request!");
+		System.out.println("======");
+
 		if(ret)
 			System.out.println(ret + ": successfully sent the session-join request.");
 		else
 			System.err.println(ret + ": failed the session-join request!");
+		
+	
+		run();
 		
 	}	
 	
 	public static void main(String[] args) {
 		Client client = new Client(0,"session1","g1");
 		client.init();
-		boolean a = true;
+
 		
-		while(true) {
-			long   save_time = System.currentTimeMillis();
-			long   curr_time = 0;
-			while ( (curr_time - save_time) < 5000 )
-			{
-				curr_time = System.currentTimeMillis();
-			};
-			if(a) {
-				System.out.println("enterRoom");
-				client.enterRoom("g1");
-				a=false;
-			}
-		}
 	}
 }
