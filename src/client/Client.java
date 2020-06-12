@@ -200,10 +200,12 @@ public class Client {
 	public void enterRoom(String roomName) {
 		CMDummyEvent due = new CMDummyEvent();
 		due.setDummyInfo("enter " + roomName);
-		//
+		
 		due.setSender("");
 		
 		clientStub.send(due, "SERVER");
+		
+		
 		
 	}
 	
