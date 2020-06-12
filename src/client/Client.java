@@ -320,7 +320,6 @@ public class Client {
 
 	public static void main(String args[]) {
 		Client client = new Client(1, "session1", "g1");
-		
 		client.superPeer = true;
 		client.playerList.add(client.new Player(0, 0, 0, false));
 		client.playerList.add(client.new Player(1, 0, 0, false));
@@ -332,12 +331,6 @@ public class Client {
 		PApplet.main(GUI.class);
 		
 		client.init();
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			System.out.println(e.getMessage());
-		}
 		
 		while (true) {
 //			for (int i = 0; i < client.playerList.size(); i++) {
