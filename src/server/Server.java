@@ -27,6 +27,7 @@ public class Server {
 	public Server() {
 		serverStub = new CMServerStub();
 		serverHandler = new ServerHandler(serverStub);
+		serverHandler.init();
 		serverStub.setAppEventHandler(serverHandler);
 	}
 	
