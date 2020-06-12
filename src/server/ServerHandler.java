@@ -9,20 +9,28 @@ import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerHandler implements CMAppEventHandler {
 	private CMServerStub serverStub;
-	CMSession gameSession;
-	
-	Vector<CMGroup> roomList;
+	CMSession gameSession;	
+	Vector<Boolean> enterRoomList;
 	
 	public ServerHandler(CMServerStub serverstub){
 		serverStub = serverstub;
-		gameSession = new CMSession("sessionName", "sessonAddress", 0); //TODO should be set
+	}
+	
+	public void init() {
+		//CMInteractionInfo interInfo = serverStub.getCMInfo().getInteractionInfo();
+		//gameSession = interInfo.findSession("session2");
+		enterRoomList = new Vector<Boolean>();
+		for(int i=0; i<4; i++)
+			enterRoomList.add(true);
 	}
 	
 	@Override
@@ -31,6 +39,9 @@ public class ServerHandler implements CMAppEventHandler {
 		switch(event.getType()) {
 		case CMInfo.CM_SESSION_EVENT: //server in&out
 			processSessionEvent(event);
+			break;
+		case CMInfo.CM_INTEREST_EVENT:
+			processInterestEvent(event);
 			break;
 		case CMInfo.CM_DUMMY_EVENT:
 			processDummyEvent(event);
@@ -72,47 +83,56 @@ public class ServerHandler implements CMAppEventHandler {
 		}
 	}
 	
+	private void processInterestEvent(CMEvent event) {
+		CMInterestEvent interestEvent = (CMInterestEvent)event;
+		switch(interestEvent.getID())
+		{
+		case CMInterestEvent.USER_ENTER:
+			System.out.println("["+interestEvent.getUserName()+"] enters group("+interestEvent.getCurrentGroup()+") in session("
+					+interestEvent.getHandlerSession()+").");
+			break;
+		case CMInterestEvent.USER_LEAVE:
+			System.out.println("["+interestEvent.getUserName()+"] leaves group("+interestEvent.getHandlerGroup()+") in session("
+					+interestEvent.getHandlerSession()+").");
+			break;
+		default:
+			System.err.println("UNEXPECTED EVENT"+event.getType());
+			return;
+		}
+	}
+	
 	private void processDummyEvent(CMEvent event) {
 		CMDummyEvent dummyEvent = (CMDummyEvent)event;
-		String[] splited = dummyEvent.getDummyInfo().split("@#$");
+		System.out.println("Dummy Event: " + dummyEvent.getDummyInfo());
+		String[] splited = dummyEvent.getDummyInfo().split(" ");
 		String command = splited[0];
 		String roomName = splited[1];
+		int index = 0;
+		String cmd = null;
 		
 		if(command.equals("enter")) {
-			roomList = gameSession.getGroupList();
-			Iterator<CMGroup> itr = roomList.iterator();
-			CMGroup dest = null;
+			System.out.println("Enter?");
 			CMDummyEvent newDummyEvent = new CMDummyEvent();
 			
-			while(itr.hasNext()) {
-				if(itr.next().getGroupName().equals(roomName)) {
-					dest = itr.next();
-					break;
-				}
+			if(roomName.contentEquals("g2")) {
+				index=0;
+			} else if(roomName.contentEquals("g3")) {
+				index=1;
+			} else if(roomName.contentEquals("g4")) {
+				index=2;
+			} else if(roomName.contentEquals("g5")) {
+				index=3;
 			}
 			
-			if(dest==null) {//if room destroyed right after the request
-				newDummyEvent.setDummyInfo("deny@#$"+roomName);
+			newDummyEvent.setID(dummyEvent.getID());
+			
+			if(enterRoomList.get(index)) {
+				cmd = "okay";
+			} else {
+				cmd = "deny";
 			}
-			else {
-				Vector<CMUser> member = dest.getGroupUsers().getAllMembers();
-
-				if(member.size()==1) newDummyEvent.setDummyInfo("okay@#$"+roomName);
-				else if(member.size()==4) newDummyEvent.setDummyInfo("deny@#$"+roomName);
-				else {
-					//if ingGame==true, return deny / else return okay
-					CMDummyEvent checkGame = new CMDummyEvent();
-					checkGame.setDummyInfo("ingGame@#$"+roomName);
-					checkGame.setID(new Random().nextInt());
-					
-					CMDummyEvent received = (CMDummyEvent)serverStub.sendrecv(checkGame, member.get(0).getName(), CMInfo.CM_DUMMY_EVENT, checkGame.getID(), 1);
-										
-					if(received.getDummyInfo().equals("okay")) newDummyEvent.setDummyInfo("okay@#$"+roomName);
-					else newDummyEvent.setDummyInfo("deny@#$"+roomName);
-				}
-				
-				serverStub.send(newDummyEvent, dummyEvent.getSender());
-			}
+			newDummyEvent.setDummyInfo(cmd);
+			serverStub.send(newDummyEvent, dummyEvent.getSender());
 		}
 		else {
 			System.err.println("Unknown Command");

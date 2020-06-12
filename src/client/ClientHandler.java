@@ -1,4 +1,4 @@
-package client;
+package client; //jihyun hi~^^~f
 
 import kr.ac.konkuk.ccslab.cm.event.CMDataEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
@@ -8,8 +8,7 @@ import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
-import java.util.Iterator;
-import client.Client.Player;
+
 
 public class ClientHandler implements CMAppEventHandler {
 	private Client client;
@@ -28,6 +27,7 @@ public class ClientHandler implements CMAppEventHandler {
 	public void processEvent(CMEvent cme) {
 
 		switch (cme.getType()) {
+
 		case CMInfo.CM_SESSION_EVENT:
 			processSessionEvent(cme);
 			break;
@@ -59,7 +59,17 @@ public class ClientHandler implements CMAppEventHandler {
 		case "endGame":
 			client.setIngGame(false);
 			break;
-
+			
+		case "move":
+			if(client.superPeer) {	
+				int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
+				int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
+				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
+				
+				//client.playerList.getIndexof(1) = engine.(x,y,kick);	superpper�쓽 playerlis �뾽�뜲�씠
+			}
+			break;
+			
 		case "update":
 
 			if (!client.superPeer) {
@@ -129,14 +139,15 @@ public class ClientHandler implements CMAppEventHandler {
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
 
+		System.out.println("Dummy Event: "+due.getDummyInfo());
 		// Parse Client-Server Request
-		String inputStr[] = due.getDummyInfo().split("@#$");
-
+		String inputStr[] = due.getDummyInfo().split(" ");
+		
 		switch (inputStr[0]) {
 		case "okay":
 			clientStub.leaveSession();
-			clientStub.joinSession("Session2");
-
+			clientStub.joinSession("session2");
+			
 			clientStub.changeGroup(inputStr[1]);
 			break;
 		case "deny":
