@@ -9,7 +9,6 @@ import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 
-
 public class ClientHandler implements CMAppEventHandler {
 	private Client client;
 	private CMClientStub clientStub;
@@ -59,17 +58,18 @@ public class ClientHandler implements CMAppEventHandler {
 		case "endGame":
 			client.setIngGame(false);
 			break;
-			
+
 		case "move":
-			if(client.superPeer) {	
+			if (client.superPeer) {
 				int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
 				int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
 				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
-				
-				//client.playerList.getIndexof(1) = engine.(x,y,kick);	superpperï¿½ì“½ playerlis ï¿½ë¾½ï¿½ëœ²ï¿½ì” 
+
+				// client.playerList.getIndexof(1) = engine.(x,y,kick); superpperï¿½ì“½ playerlis
+				// ï¿½ë¾½ï¿½ëœ²ï¿½ì” 
 			}
 			break;
-			
+
 		case "update":
 
 			if (!client.superPeer) {
@@ -81,7 +81,6 @@ public class ClientHandler implements CMAppEventHandler {
 				int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
 
 				System.out.println(id + "Á¤º¸¸¦ Àß ¹Þ¾ÒÀ½ " + x + " " + y + " " + vx + " " + vy + " " + kick);
-				client.setPlayer(id, x, y, vx, vy, kick == 0 ? false : true);
 
 				GUI.player.get(id).x = x;
 				GUI.player.get(id).y = y;
@@ -139,34 +138,53 @@ public class ClientHandler implements CMAppEventHandler {
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
 
-		System.out.println("Dummy Event: "+due.getDummyInfo());
-		// Parse Client-Server Request
-		String inputStr[] = due.getDummyInfo().split(" ");
-		
-		switch (inputStr[0]) {
-		case "okay":
-			clientStub.leaveSession();
-			clientStub.joinSession("session2");
-			
-			clientStub.changeGroup(inputStr[1]);
-			break;
-		case "deny":
-			// Room Access Deny
-			client.updateRoomList();
-			break;
-		case "ingGame":
-			CMDummyEvent response = new CMDummyEvent();
-			response.setID(due.getID());
-			if (client.isIngGame()) {
-				due.setDummyInfo("deny");
-			} else {
-				due.setDummyInfo("okay");
+		if (client.superPeer) {
+			switch (due.getDummyInfo()) {
+			case "a":
+				GUI.player.get(due.getID()).vx = -3.0f;
+				break;
+			case "d":
+				GUI.player.get(due.getID()).vx = 3.0f;
+				break;
+			case "w":
+				GUI.player.get(due.getID()).vy = -3.0f;
+				break;
+			case "s":
+				GUI.player.get(due.getID()).vy = 3.0f;
+				break;
+			default:
+				break;
 			}
-			clientStub.send(due, "SERVER");
-			break;
-		default:
-			return;
 		}
+
+//		System.out.println("Dummy Event: "+due.getDummyInfo());
+//		// Parse Client-Server Request
+//		String inputStr[] = due.getDummyInfo().split(" ");
+//		
+//		switch (inputStr[0]) {
+//		case "okay":
+//			clientStub.leaveSession();
+//			clientStub.joinSession("session2");
+//			
+//			clientStub.changeGroup(inputStr[1]);
+//			break;
+//		case "deny":
+//			// Room Access Deny
+//			client.updateRoomList();
+//			break;
+//		case "ingGame":
+//			CMDummyEvent response = new CMDummyEvent();
+//			response.setID(due.getID());
+//			if (client.isIngGame()) {
+//				due.setDummyInfo("deny");
+//			} else {
+//				due.setDummyInfo("okay");
+//			}
+//			clientStub.send(due, "SERVER");
+//			break;
+//		default:
+//			return;
+//		}
 
 		return;
 	}
