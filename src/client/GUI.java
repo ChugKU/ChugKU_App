@@ -11,6 +11,8 @@ public class GUI extends PApplet {
 	static int gameset = 0;
 	static boolean gameover = false;
 	static boolean superPeer = true;
+	static String keypress = "";
+	static boolean keyType = false;
 	static int leftPlayer, rightPlayer, myNum;
 	int i, j = 0;
 	static boolean start = true;
@@ -91,14 +93,21 @@ public class GUI extends PApplet {
 	public void keyTyped() {
 		if (key == 'a') {
 			player.get(myNum).vx = -3.0f;
+			keypress = "a";
+			keyType = true;
 		} else if (key == 'd') {
 			player.get(myNum).vx = 3.0f;
+			keypress = "d";
+			keyType = true;
 		} else if (key == 'w') {
 			player.get(myNum).vy = -3.0f;
+			keypress = "w";
+			keyType = true;
 		} else if (key == 's') {
 			player.get(myNum).vy = 3.0f;
+			keypress = "s";
+			keyType = true;
 		}
-		
 	}
 
 	void setBoard() {
