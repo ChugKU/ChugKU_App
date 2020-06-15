@@ -38,6 +38,8 @@ public class ClientHandler implements CMAppEventHandler {
          break;
       case CMInfo.CM_DATA_EVENT:
          processDataEvent(cme);
+         break;
+
       default:
          return;
       }
@@ -48,7 +50,6 @@ public class ClientHandler implements CMAppEventHandler {
 
       CMUserEvent ue = (CMUserEvent) cme;
       String action = ue.getStringID();
-      // System.out.println(action + "À» ¹Þ¾ÒÀ½");
 
       switch (action) {
       case "startGame":
@@ -56,32 +57,22 @@ public class ClientHandler implements CMAppEventHandler {
          client.setStart(true);
          break;
 
-      case "endGame":
+      case "gameover":
     	  client.setStart(false);
-         break;
-
-      case "move":
-         if (client.superPeer) {
-            int x = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "x"));
-            int y = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "y"));
-            int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
-
-            // client.playerList.getIndexof(1) = engine.(x,y,kick); superpperï¿½ì“½ playerlis
-            // ï¿½ë¾½ï¿½ëœ²ï¿½ì” 
-         }
+    	  GUI.gameover = true;
+          GUI.leftScore = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "leftScore"));
+          GUI.rightScore = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "rightScore"));
          break;
 
       case "update":
 
          if (!client.superPeer) {
             int id = ue.getID(); // room index
+
             float x = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "x"));
             float y = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "y"));
             float vx = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "vx"));
             float vy = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "vy"));
-         //   int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
-
-//            System.out.println(id + "Á¤º¸¸¦ Àß ¹Þ¾ÒÀ½ " + x + " " + y + " " + vx + " " + vy + " " + kick);
 
             GUI.player.get(id).x = x;
             GUI.player.get(id).y = y;
@@ -90,25 +81,18 @@ public class ClientHandler implements CMAppEventHandler {
          }
          break;
 
+       
+   	  case "gameset":
+             GUI.gameset = 5;
+             GUI.gamesetFlag = false;
+             GUI.leftScore = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "leftScore"));
+             GUI.rightScore = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "rightScore"));
+             
+             break;  
+  
       default:
-//         int id = ue.getID(); //room index
-//         float x = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "x"));
-//         float y = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "y"));
-//         float vx = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "vx"));
-//         float vy = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "vy"));
-//         int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
-//      
-//         System.out.println(id + "Á¤º¸¸¦ Àß ¹Þ¾ÒÀ½ " + x + " " + y + " " + vx + " " + vy + " ");
-//         client.setPlayer(id, x, y, vx, vy,  kick==0 ? false : true);
-//         
-//         client.setPlayer(id, x, y, vx, vy, false);
-//         GUI.player.get(id).x = x;
-//         GUI.player.get(id).y = y;
-//         GUI.player.get(id).vx = vx;
-//         GUI.player.get(id).vy = vy;   
          break;
       }
-
    }
 
    private void processSessionEvent(CMEvent cme) {
@@ -153,22 +137,38 @@ public class ClientHandler implements CMAppEventHandler {
          case "s":
             GUI.player.get(due.getID()).vy = 3.0f;
             break;
+         case " ":
+            GUI.player.get(0).vx = (float) ((GUI.player.get(0).x - GUI.player.get(due.getID()).x) * 0.15);
+            GUI.player.get(0).vy = (float) ((GUI.player.get(0).y - GUI.player.get(due.getID()).y) * 0.15);
+            break; 
          default:
             break;
          }
+      } else {
+    	  switch(due.getDummyInfo()) {
+    	  case "gameover":
+    		  GUI.gameover = true;
+    		  break;
+    	  default:
+    		break;
+    	  }
       }
+
       return;
    }
 
    private void processDataEvent(CMEvent cme) {
       CMDataEvent de = (CMDataEvent) cme;
+
       CMUserEvent req, ans;
       
       client.updatePlayerList();
+
       switch (de.getID()) {
       case CMDataEvent.NEW_USER:
          System.out.println("[" + de.getUserName() + "] enters group(" + de.getHandlerGroup() + ") in session("
                + de.getHandlerSession() + ").");
+
          // update player list && send busy request to Server
          
          req=new CMUserEvent();
@@ -180,12 +180,14 @@ public class ClientHandler implements CMAppEventHandler {
          //if(ans != null) {
         	 // update new players id & name
         // }
+
          break;
       case CMDataEvent.REMOVE_USER:
          System.out.println("[" + de.getUserName() + "] leaves group(" + de.getHandlerGroup() + ") in session("
                + de.getHandlerSession() + ").");
          // update player list && send free requests to Server
          
+
          break;
       default:
          return;

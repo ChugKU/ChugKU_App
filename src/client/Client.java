@@ -19,8 +19,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
-import client.GUI.Player;
-
 public class Client {
    private CMClientStub clientStub;
    private ClientHandler clientHandler;
@@ -31,78 +29,34 @@ public class Client {
    boolean superPeer;
 
    String session, group;
-
-   Player player;
-   ArrayList<Player> playerList;
-   ArrayList<String> roomList;
-   String roomName;
+   static String roomName;
 
    String name_id; // login
    int id; // game interaction
 
-   private int maxPoint, curPoint;
-
-//   class Player {
-//	  private String name;
-//      private int id;
-//      private float x, y, vx, vy;
-//      private boolean kick;
-//
-//      // id in room == index
-//      public Player(int id, float x, float y, boolean kick) {
-//         this.id = id;
-//         this.x = x;
-//         this.y = y;
-//         this.vx = 0;
-//         this.vy = 0;
-//         this.kick = kick;
-//      }
-//
-//      public void setPlayer(float x, float y, float vx, float vy, boolean kick) {
-//         this.x = x;
-//         this.y = y;
-//         this.vx = vx;
-//         this.vy = vy;
-//         this.kick = kick;
-//      }
-//      
-//      public void setName(String name) {
-//    	  this.name = name;
-//      }
-//      
-//      public String getName() {
-//    	  return name;
-//      }
-//   }
-
-
-   Client(int name_id, String session, String group) {
+   
+   Client(int id, String session, String group) {
 
       this.superPeer = false;
       this.session = session;
       this.group = group;
-      this.name_id = "user"+name_id;
+
+      this.name_id = "user"+id;
+      this.clientStart = true;
+
+      this.id = id;
       this.clientStart = true;
 
       clientStub = new CMClientStub();
       clientHandler = new ClientHandler(clientStub);
       clientStub.setAppEventHandler(clientHandler);
 
-      roomList = new ArrayList<String>();
-      for(int i=0; i<4; i++) {
-    	  roomList.add("g"+(i+2));
-      }
-      
-      playerList = new ArrayList<Player>();
-      
    }
 
    // return "client application service" - interaction with CM
    public CMClientStub getClientStub() {
       return clientStub;
    }
-
-
    // ***** client control *****
    public void setSuper(boolean superPeer) {
       this.superPeer = superPeer;
@@ -112,6 +66,7 @@ public class Client {
 
    // ***** user interaction *****
    public boolean startGame() {
+
       this.superPeer = true;
       CMUserEvent cme = new CMUserEvent();
       cme.setID(this.id);
@@ -150,53 +105,56 @@ public class Client {
          cme.setEventField(CMInfo.CM_FLOAT, "y", Float.toString(GUI.player.get(i).y)); // send y=y
          cme.setEventField(CMInfo.CM_FLOAT, "vx", Float.toString(GUI.player.get(i).vx)); // send x=x
          cme.setEventField(CMInfo.CM_FLOAT, "vy", Float.toString(GUI.player.get(i).vy)); // send y=y
-         //cme.setEventField(CMInfo.CM_INT, "kick", GUI.player.get(i).kick ? "1" : "0"); // send kick=0,1
-
-         // cme.setHandlerSession(myself.getCurrentSession());
-         // cme.setHandlerGroup(myself.getCurrentGroup());
-
+         
          multicast(cme);
-         // System.out.print("잘되었습니다." + i + " ");
+
+       
       }
-      // System.out.println();
+
    }
+   
+   public void gameset() {
+	      CMInteractionInfo interInfo = clientStub.getCMInfo().getInteractionInfo();
+	      CMConfigurationInfo confInfo = clientStub.getCMInfo().getConfigurationInfo();
+	      // System.out.println("====== test multicast chat in current group");
 
-//   public void kick() {
-//      CMUserEvent cme = new CMUserEvent();
-//      cme.setID(this.playerID);
-//      cme.setStringID("kick");
-//      cme.setEventField(CMInfo.CM_INT, "kick", Integer.toString(1)); //send kick=true
-//      multicast(cme);
-//   }
+	      // check user state
+	      CMUser myself = interInfo.getMyself();
+	      if (myself.getState() != CMInfo.CM_SESSION_JOIN) {
+	         System.out.println("You must join a session and a group for multicasting.");
+	         return;
+	      }
 
-   public void run() {
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      String cmd = null;
+	      // check communication architecture
+	      if (!confInfo.getCommArch().equals("CM_PS")) {
+	         System.out.println("CM must start with CM_PS mode which enables multicast per group!");
+	         return;
+	      }
 
-      while (clientStart) {
-         System.out.print("> ");
-         try {
-            cmd = br.readLine();
-         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
+	     
 
-         if (cmd.contentEquals("enter")) {
-            enterRoom(2);
-            
-         } else if (cmd.contentEquals("exit")) {
-            exitRoom();
-         }
-      }
-   }
+	         CMUserEvent cme = new CMUserEvent();
+	         cme.setID(this.id);
+	         cme.setStringID("gameset");
+	         cme.setEventField(CMInfo.CM_INT, "leftScore", Integer.toString(GUI.leftScore)); // send x=x
+	         cme.setEventField(CMInfo.CM_INT, "rightScore", Integer.toString(GUI.rightScore)); // send x=x
+	        
 
-   public boolean enterRoom(int index) {
+	         multicast(cme);
+	         //System.out.print("ìëììµëë¤." + i + " ");
+	      // System.out.println();
+	   }
+
+
+   
+public boolean enterRoom(int index) {
+	
       boolean ret = clientStub.leaveSession();
       CMSessionEvent se;
       String sessionName = "session2";
 
       // delay(2sec)
+
       wait_msec(2000);
 
       if (ret) {
@@ -243,7 +201,8 @@ public class Client {
       return false;
    }
 
-   private void exitRoom() {
+
+   public void exitRoom() {
 
       System.out.println("leave session");
       boolean ret = clientStub.leaveSession();
@@ -275,44 +234,29 @@ public class Client {
    }
    // ***** user interaction *****
 
-   // ***** game processing *****
-   private boolean endGame() {
-      if (this.superPeer) {
-         if (curPoint == maxPoint) {
-
-            CMUserEvent cme = new CMUserEvent();
-            cme.setID(id);
-            cme.setStringID("endGame");
-            cme.setEventField(CMInfo.CM_INT, "ingGame", Integer.toString(0)); // send ingGame=false (gameover)
-
-            multicast(cme);
-
-            return true;
-         }
-      }
-      return false;
-   }
-
-   private void addPoint() {
-      this.curPoint++;
-
+   // ***** game processing *****d
+   void gameover() {	
+	   CMUserEvent cme = new CMUserEvent();
+       cme.setID(this.id);
+       cme.setStringID("gameover");
+       cme.setEventField(CMInfo.CM_INT, "leftScore", Integer.toString(GUI.leftScore)); // send x=x
+       cme.setEventField(CMInfo.CM_INT, "rightScore", Integer.toString(GUI.rightScore)); // send x=x
+       
+       multicast(cme);
+	
    }
    // ***** game processing *****
 
    // ***** client getter, setter *****
-   public int getMaxPoint() {
-      return maxPoint;
-   }
 
-   public void setMaxPoint(int maxPoint) {
-      this.maxPoint = maxPoint;
-   }
+   // ***** client getter, setter *****
 
 
    // ***** client getter, setter *****
 
    public void multicast(CMEvent cme) {
-      // clientStub.multicast(cme, "session1", "g1");
+      //clientStub.multicast(cme, "session1", "g1");
+
       clientStub.cast(cme, "session1", "g1");
    }
 
@@ -343,16 +287,16 @@ public class Client {
       else
          System.err.println(ret + ": failed the session-join request!");
 
-     // run();
 
       try {
-         Thread.sleep(8000);
+         Thread.sleep(3000);
       } catch (InterruptedException e) {
          System.out.println(e.getMessage());
       }
    }
 
    public static void main(String args[]) {
+
 	   
       Client client = new Client(new Random().nextInt(1000), "session1", "g1");
       client.superPeer = false;
@@ -360,6 +304,7 @@ public class Client {
       GUI.superPeer = client.superPeer;
       GUI.leftPlayer = 2;
       GUI.rightPlayer = 1;
+
       GUI.myNum = 3;
       PApplet.main(GUI.class);
 
@@ -374,14 +319,24 @@ public class Client {
     	               CMDummyEvent due = new CMDummyEvent();
     	               due.setID(client.id);
     	               due.setDummyInfo(GUI.keypress);
-    	               client.clientStub.cast(due, "session2", "g1");
+    	               client.clientStub.cast(due, "session1", "g1");
     	               GUI.keyType = false;
     	            }
     	         } else {
-    	            client.update(); // muticast in my session group
+    	        	 if(GUI.gameover) {
+    	        		 client.gameover();
+    	        	 }
+    	        	 else if (GUI.gamesetFlag) {
+    	            	client.gameset();
+    	               GUI.gamesetFlag = false;
+    	            }
+    	            else {
+    	            	client.update(); // muticast in my session group
+    	            }
+    	            
     	         }
     	         try {
-    	            Thread.sleep(100);
+    	            Thread.sleep(30);
     	         } catch (InterruptedException e) {
     	            System.out.println(e.getMessage());
     	         }
@@ -417,7 +372,6 @@ public class Client {
     				  }
     			  }
     			  cue.setStringID("startGame");
-
                   client.clientStub.cast(cue, "session2","g"+(index+2));
                   client.superPeer = true;
                   
@@ -453,47 +407,50 @@ public class Client {
       }
    }
    
-   public int getMembers() {
-	   if(clientStub.getGroupMembers()!= null) {
-			return clientStub.getGroupMembers().getMemberNum();
-	}
-	   return -1;
-   }
+	   public int getMembers() {
+		   if(clientStub.getGroupMembers()!= null) {
+				return clientStub.getGroupMembers().getMemberNum();
+		}
+		   return -1;
+	   }
 
-public void updatePlayerList() {
-	
-	// TODO Auto-generated method stub
-	int userNum = 0;
-	
-	if(clientStub.getGroupMembers()!= null) {
-		userNum = clientStub.getGroupMembers().getMemberNum();
-	} else {
-		System.err.println("Fail to get Group Member");
-		return;
-	}
-	
-	
-	CMDummyEvent due = new CMDummyEvent();
-	if(userNum == 4) {
-		// send busy request
-		due.setDummyInfo("busy " + roomName);
+	public void updatePlayerList() {
 		
-	} else if (userNum < 4) {
-		// send free request
-		due.setDummyInfo("free " + roomName);
+		// TODO Auto-generated method stub
+		int userNum = 0;
+		
+		if(clientStub.getGroupMembers()!= null) {
+			userNum = clientStub.getGroupMembers().getMemberNum();
+		} else {
+			System.err.println("Fail to get Group Member");
+			return;
+		}
+		
+		if(GUI.myNum < 0) GUI.myNum = userNum;
+		
+		CMDummyEvent due = new CMDummyEvent();
+		if(userNum == 4) {
+			// send busy request
+			due.setDummyInfo("busy " + roomName);
+			
+		} else if (userNum < 4) {
+			// send free request
+			due.setDummyInfo("free " + roomName);
+		}
+		
+		clientStub.send(due, "SERVER");
 	}
-	
-	clientStub.send(due, "SERVER");
-}
 
-public void setStart(boolean b) {
-	// TODO Auto-generated method stub
-	if(b) {
-		GUI.gameMode=5;
-	}else {
-		GUI.gameMode=1;
+	public void setStart(boolean b) {
+		// TODO Auto-generated method stub
+		if(b) {
+			GUI.gameMode=5;
+		}else {
+			GUI.gameMode=1;
+		}
+		GUI.start = b;
 	}
-	GUI.start = b;
-}
+
+     
 
 }
