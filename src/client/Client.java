@@ -198,7 +198,7 @@ public class Client {
          // cme.setHandlerGroup(myself.getCurrentGroup());
 
          multicast(cme);
-         //System.out.print("잘되었습니다." + i + " ");
+         //System.out.print("ìëììµëë¤." + i + " ");
       }
       // System.out.println();
    }
@@ -234,7 +234,7 @@ public class Client {
 	         // cme.setHandlerGroup(myself.getCurrentGroup());
 
 	         multicast(cme);
-	         //System.out.print("잘되었습니다." + i + " ");
+	         //System.out.print("ìëììµëë¤." + i + " ");
 	      // System.out.println();
 	   }
 
@@ -355,7 +355,7 @@ public class Client {
        cme.setEventField(CMInfo.CM_INT, "rightScore", Integer.toString(GUI.rightScore)); // send x=x
        
        multicast(cme);
-	         //System.out.print("잘되었습니다." + i + " ");
+	         //System.out.print("ìëììµëë¤." + i + " ");
 	      // System.out.println();
    }
 
@@ -452,7 +452,7 @@ public class Client {
 
       while (true) {
 //         for (int i = 0; i < client.playerList.size(); i++) {
-//            System.out.print(i + "번x:" + GUI.player.get(i).x + ", " + i + "번y:" + GUI.player.get(i).y + ", ");
+//            System.out.print(i + "ë²x:" + GUI.player.get(i).x + ", " + i + "ë²y:" + GUI.player.get(i).y + ", ");
 //         }
 //         System.out.println();
 
@@ -484,5 +484,6 @@ public class Client {
          }
       }
    }
+
 
 }

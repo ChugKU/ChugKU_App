@@ -49,7 +49,7 @@ public class ClientHandler implements CMAppEventHandler {
 
       CMUserEvent ue = (CMUserEvent) cme;
       String action = ue.getStringID();
-      // System.out.println(action + "을 받았음");
+      // System.out.println(action + " 諛");
 
       switch (action) {
       case "startGame":
@@ -98,7 +98,7 @@ public class ClientHandler implements CMAppEventHandler {
 //         float vy = Float.parseFloat(ue.getEventField(CMInfo.CM_FLOAT, "vy"));
 //         int kick = Integer.parseInt(ue.getEventField(CMInfo.CM_INT, "kick"));
 //      
-//         System.out.println(id + "정보를 잘 받았음 " + x + " " + y + " " + vx + " " + vy + " ");
+//         System.out.println(id + "�蹂대�  諛 " + x + " " + y + " " + vx + " " + vy + " ");
 //         client.setPlayer(id, x, y, vx, vy,  kick==0 ? false : true);
 //         
 //         client.setPlayer(id, x, y, vx, vy, false);

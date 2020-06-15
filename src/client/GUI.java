@@ -4,7 +4,6 @@ import processing.core.PApplet;
 import java.util.ArrayList;
 
 public class GUI extends PApplet {
-
    static ArrayList<Player> player = new ArrayList<Player>();
 
    float e = 1; // elastic modulus
@@ -23,14 +22,14 @@ public class GUI extends PApplet {
    // method used only for setting the size of the window
    public void settings() {
       size(1320, 680);
-      // size(1120,520); 축구장 사이즈
+      // size(1120,520); 異援ъ ъ댁
    }
 
    // identical use to setup in Processing IDE except for size()
    public void setup() {
       ellipseMode(CENTER);
 
-      player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // 첫번째 플레이어는 항상 공 = 인덱스 0 
+      player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // 泥ル吏 �댁대 � 怨 = 몃깆 0 
 
       for (i = 0; i < leftPlayer; i++) {
          player.add(new Player(i + 1, 10, 20, 200, 250 + i * 100, 0xe6e6fa));
@@ -131,29 +130,29 @@ public class GUI extends PApplet {
 
       background(0, 128, 0); // green
 
-      // size(1320,680); 전체 맵사이즈
-      // size(1120,520); 축구장 사이즈
+      // size(1320,680); �泥 留듭ъ댁
+      // size(1120,520); 異援ъ ъ댁
 
-      // 줄 특징 설정
+      // 以 뱀 ㅼ
       strokeWeight(5);
       strokeCap(ROUND);
 
-      // 골대
+      // 怨⑤
       noFill();
       stroke(0, 0, 0);
       rect(50, 240, 50, 200); // x, y, d, h
       rect(1220, 240, 50, 200); // x, y, d, h
 
-      // 축구장 라인들
+      // 異援ъ 쇱몃
       noFill();
       stroke(248, 248, 255);
-      circle(660, 340, 220); // x, y, r 중간원
+      circle(660, 340, 220); // x, y, r 以媛
 
-      line(100, 80, 1220, 80); // x, y, d, h 윗라인
-      line(100, 80, 100, 600); // x, y, d, h 왼라인
-      line(1220, 80, 1220, 600); // x, y, d, h 오른라인
-      line(100, 600, 1220, 600); // x, y, d, h 아랫라인
-      line(660, 80, 660, 600); // x, y, d, h 중간선
+      line(100, 80, 1220, 80); // x, y, d, h 쇱
+      line(100, 80, 100, 600); // x, y, d, h 쇰쇱
+      line(1220, 80, 1220, 600); // x, y, d, h ㅻⅨ쇱
+      line(100, 600, 1220, 600); // x, y, d, h ル쇱
+      line(660, 80, 660, 600); // x, y, d, h 以媛
       
       for (i = 0; i < player.size(); i++) {
          player.get(i).update();
@@ -201,7 +200,7 @@ public class GUI extends PApplet {
                float dy = player.get(i).y - player.get(j).y;
                float dab = abs(sqrt(dx * dx + dy * dy));
 
-               if (dab <= player.get(i).r + player.get(j).r) { // 두 공 및 플레이어 충돌 시
+               if (dab <= player.get(i).r + player.get(j).r) { //  怨 諛 �댁 異⑸ 
                   float sinTheta = dy / abs(sqrt(dx * dx + dy * dy));
                   float cosTheta = dx / abs(sqrt(dx * dx + dy * dy));
                   float vxAp = (player.get(i).m - e * player.get(j).m) / (player.get(i).m + player.get(j).m)
@@ -220,7 +219,7 @@ public class GUI extends PApplet {
                   player.get(j).vx = vxBp * cosTheta + vyBp * (-sinTheta);
                   player.get(j).vy = vxBp * sinTheta + vyBp * cosTheta;
 
-                  // 플레이어간 겹침 방지
+                  // �댁닿 寃뱀묠 諛⑹
                   float angleAB = atan2(dy, dx);
                   float angleplayer = atan2(-dy, -dx);
                   float moveToDistance = abs(player.get(i).r + player.get(j).r) - dab;
@@ -236,13 +235,13 @@ public class GUI extends PApplet {
          }
       }
       
-      // 왼쪽 골대에 들어간 경우
+      // 쇱そ 怨⑤ ㅼ닿 寃쎌
       if (player.get(0).x < 100 && player.get(0).x > 50 && player.get(0).y < 440 && player.get(0).y > 240) {
          gameset = 5;
          rightScore += 1;
          gamesetFlag = true;
       }
-      // 오른쪽 골대에 들어간 경우
+      // ㅻⅨ履 怨⑤ ㅼ닿 寃쎌
       if (player.get(0).x < 1270 && player.get(0).x > 1220 && player.get(0).y < 440 && player.get(0).y > 240) {
          leftScore += 1;
          gameset = 5;
@@ -259,7 +258,7 @@ public class GUI extends PApplet {
           gameover = true;
       }
       
-      // 공 벽에 부딪친 경우
+      // 怨 踰쎌 遺れ 寃쎌
       if (player.get(0).x + player.get(0).vx < player.get(0).r + 100
             || player.get(0).x + player.get(0).vx > width - player.get(0).r - 100) {
          if (player.get(0).x + player.get(0).vx < player.get(0).r + 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // left wall
@@ -283,7 +282,7 @@ public class GUI extends PApplet {
          player.get(0).vx *= 0.8;
       }
 
-      // 플레이어들이 가장자리 벽에 부딪힌 경우
+      // �댁대ㅼ 媛μ由 踰쎌 遺ろ 寃쎌
       for (i = 1; i < player.size(); i++) {
          if (player.get(i).x + player.get(i).vx < player.get(i).r
                || player.get(i).x + player.get(i).vx > width - player.get(i).r) {
@@ -307,7 +306,7 @@ public class GUI extends PApplet {
          }
       }
       
-      // 공의 마찰력
+      // 怨듭 留李곕
       if (player.get(0).vx > 0.04) {
          player.get(0).vx -= 0.04;
       } else if (player.get(0).vx < -0.04) {
@@ -323,11 +322,11 @@ public class GUI extends PApplet {
       } else if (player.get(0).vy < 0.15 && player.get(0).vy > -0.15) {
          player.get(0).vy = 0;
       }
-      // 공 좌표 변환
+      // 怨 醫 蹂
       player.get(0).x += player.get(0).vx;
       player.get(0).y += player.get(0).vy;
 
-      // 플레이어의 마찰력
+      // �댁댁 留李곕
       for (i = 1; i < player.size(); i++) {
          if (player.get(i).vx > 0.04) {
             player.get(i).vx -= 0.04;
@@ -344,7 +343,7 @@ public class GUI extends PApplet {
          } else if (player.get(i).vy < 0.08 && player.get(i).vy > -0.08) {
             player.get(i).vy = 0;
          }
-         // 플레이어 좌표 변환
+         // �댁 醫 蹂
          player.get(i).x += player.get(i).vx;
          player.get(i).y += player.get(i).vy;
       }
@@ -397,7 +396,7 @@ public class GUI extends PApplet {
       }
       while(true) {
          for (int i = 0; i <= GUI.leftPlayer + GUI.rightPlayer; i++) {
-            System.out.print(i + "번x:" + GUI.player.get(i).x + ", " + i + "번y:" + GUI.player.get(i).y + ", ");
+            System.out.print(i + "踰x:" + GUI.player.get(i).x + ", " + i + "踰y:" + GUI.player.get(i).y + ", ");
          }
          System.out.println();
       }
