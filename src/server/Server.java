@@ -126,29 +126,29 @@ public class Server {
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("<<<Start CM>>>");
-		System.out.println("detected server address: "+strCurServerAddress);
-		System.out.println("saved server port: "+savedServerPort);
+		//System.out.println("detected server address: "+strCurServerAddress);
+		//System.out.println("saved server port: "+savedServerPort);
 		
-		try {
-			System.out.print("new server address (enter for detected value): ");
-			strNewServerAddress = br.readLine().trim();
-			if(strNewServerAddress.isEmpty()) strNewServerAddress = strCurServerAddress;
+//		try {
+//			System.out.print("new server address (enter for detected value): ");
+//			strNewServerAddress = br.readLine().trim();
+//			if(strNewServerAddress.isEmpty()) strNewServerAddress = strCurServerAddress;
+//			
+//			System.out.print("new server port (enter for saved value): ");
+//			strNewServerPort = br.readLine().trim();
+//			try {
+//				if(strNewServerPort.isEmpty()) newServerPort = savedServerPort;
+//				else newServerPort = Integer.parseInt(strNewServerPort);
+//			} catch(NumberFormatException e) {
+//				e.printStackTrace();
+//				return;
+//			}
 			
-			System.out.print("new server port (enter for saved value): ");
-			strNewServerPort = br.readLine().trim();
-			try {
-				if(strNewServerPort.isEmpty()) newServerPort = savedServerPort;
-				else newServerPort = Integer.parseInt(strNewServerPort);
-			} catch(NumberFormatException e) {
-				e.printStackTrace();
-				return;
-			}
-			
-			if(!strNewServerAddress.equals(strSavedServerAddress)) serverStub.setServerAddress(strNewServerAddress);
-			if(newServerPort!=savedServerPort) serverStub.setServerPort(Integer.parseInt(strNewServerPort));
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+//			if(!strNewServerAddress.equals(strSavedServerAddress)) serverStub.setServerAddress(strNewServerAddress);
+//			if(newServerPort!=savedServerPort) serverStub.setServerPort(Integer.parseInt(strNewServerPort));
+//		} catch(IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		boolean result = serverStub.startCM();
 		if(!result) {

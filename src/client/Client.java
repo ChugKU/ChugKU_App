@@ -177,27 +177,30 @@ public boolean enterRoom(int index) {
             return false;
          }
       }
-      exitRoom();
+      
       System.out.println("fail to exit session");
       return false;
    }
 
-   private boolean enterRoomRequest(String roomName) {
+   private boolean enterRoomRequest(String roomN) {
       CMDummyEvent due, ans;
 
       due = new CMDummyEvent();
       due.setID(id);
       due.setSender(clientStub.getMyself().getName());
-      due.setDummyInfo("enter " + roomName);
+      due.setDummyInfo("enter " + roomN);
 
       ans = (CMDummyEvent) clientStub.sendrecv(due, "SERVER", CMInfo.CM_DUMMY_EVENT, id, 3000);
 
+      
       if (ans != null) {
          if (ans.getDummyInfo().contentEquals("okay")) {
-            clientStub.changeGroup(roomName);
+            clientStub.changeGroup(roomN);
+            roomName = roomN;
             return true;
          }
       }
+      System.out.println("no ans");
       return false;
    }
 
@@ -256,8 +259,8 @@ public boolean enterRoom(int index) {
 
    public void multicast(CMEvent cme) {
       //clientStub.multicast(cme, "session1", "g1");
-
-      clientStub.cast(cme, "session1", "g1");
+	   System.out.print(roomName + " ");
+      clientStub.cast(cme, "session2", roomName);
    }
 
    public void init() {
@@ -302,10 +305,10 @@ public boolean enterRoom(int index) {
       client.superPeer = false;
       
       GUI.superPeer = client.superPeer;
-      GUI.leftPlayer = 2;
-      GUI.rightPlayer = 1;
-
-      GUI.myNum = 3;
+//      GUI.leftPlayer = 2;
+//      GUI.rightPlayer = 1;
+//
+//      GUI.myNum = 3;
       PApplet.main(GUI.class);
 
       client.init();
@@ -319,7 +322,8 @@ public boolean enterRoom(int index) {
     	               CMDummyEvent due = new CMDummyEvent();
     	               due.setID(client.id);
     	               due.setDummyInfo(GUI.keypress);
-    	               client.clientStub.cast(due, "session1", "g1");
+    	               client.clientStub.cast(due, "session2", roomName);
+    	               
     	               GUI.keyType = false;
     	            }
     	         } else {
@@ -345,7 +349,9 @@ public boolean enterRoom(int index) {
     		  for(int i=0; i<4; i++) {
     			  if(GUI.enterRoom[i]) {
     				  if (client.enterRoom(i)) {
-    					  client.id = client.getMembers();
+    					  GUI.myNum = client.getMembers();
+    					  roomName = "g"+(i+2);
+    					  break;
     				  }
     				  GUI.enterRoom[i] = false;
     				  break;
@@ -372,11 +378,11 @@ public boolean enterRoom(int index) {
     				  }
     			  }
     			  cue.setStringID("startGame");
-                  client.clientStub.cast(cue, "session2","g"+(index+2));
+                  client.clientStub.cast(cue, "session2",roomName);
                   client.superPeer = true;
                   
                   CMDummyEvent due = new CMDummyEvent();
-                  due.setDummyInfo("busy g" + (index+2));
+                  due.setDummyInfo("busy " + roomName);
                   client.getClientStub().send(due, "SERVER");
     		  
     		  }             
