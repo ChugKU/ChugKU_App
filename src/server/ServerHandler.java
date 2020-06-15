@@ -103,11 +103,11 @@ public class ServerHandler implements CMAppEventHandler {
 	
 	private void processDummyEvent(CMEvent event) {
 		CMDummyEvent dummyEvent = (CMDummyEvent)event;
-		System.out.println("Dummy Event: " + dummyEvent.getDummyInfo());
 		String[] splited = dummyEvent.getDummyInfo().split(" ");
 		if(splited.length==1) {
 			return;
 		}
+		System.out.println("Dummy Event: " + dummyEvent.getDummyInfo());
 		String command = splited[0];
 		String roomName = splited[1];
 		int index = 0;
