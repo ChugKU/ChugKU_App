@@ -6,42 +6,105 @@ import java.util.ArrayList;
 public class GUI extends PApplet {
 
 	static ArrayList<Player> player = new ArrayList<Player>();
+	static Button[] button;
+	static Button startButton;
 
 	float e = 1; // elastic modulus
 	static int gameset = 0;
 	static boolean gameover = false;
 	static boolean superPeer = true;
+	static String keypress = "";
+	static boolean keyType = false;
 	static int leftPlayer, rightPlayer, myNum;
 	int i, j = 0;
-	static boolean start = true;
+	static boolean start = false;
 	static int leftScore = 0, rightScore = 0;
-	static int gamemode = 1;
+	static int gameMode = 1;
+	static boolean[] enterRoom;
+	static boolean[] enterRoomReq;
 
 	// method used only for setting the size of the window
 	public void settings() {
 		size(1320, 680);
-		// size(1120,520); Ãà±¸Àå »çÀÌÁî
+		// size(1120,520);  à±¸         
 	}
 
 	// identical use to setup in Processing IDE except for size()
 	public void setup() {
+		button = new Button[4];
+		for(int i=0; i<4; i++) button[i] = new Button(i);
+		startButton = new Button(-1);
+		enterRoom = new boolean[4];
+		enterRoomReq = new boolean[4];
+		gameMode = 2;
 		ellipseMode(CENTER);
 
-		player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // Ã¹¹øÂ° ÇÃ·¹ÀÌ¾î´Â Ç×»ó °ø = ÀÎµ¦½º 0 
-
-		for (i = 0; i < leftPlayer; i++) {
-			player.add(new Player(i + 1, 10, 20, 200, 250 + i * 100, 0xe6e6fa));
-		}
-		for (i = 0; i < rightPlayer; i++) {
-			player.add(new Player(leftPlayer + 1 + i, 10, 20, 1120, 250 + i * 100, 0xe6e6fa));
-		}
+//		player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // Ã¹  Â°  Ã·  Ì¾    ×»     =  Îµ    0 
+//
+//		for (i = 0; i < leftPlayer; i++) {
+//			player.add(new Player(i + 1, 10, 20, 200, 250 + i * 100, 0xe6e6fa));
+//		}
+//		for (i = 0; i < rightPlayer; i++) {
+//			player.add(new Player(leftPlayer + 1 + i, 10, 20, 1120, 250 + i * 100, 0xe6e6fa));
+//		}
 	}
 
 	// identical use to draw in Prcessing IDE
 	public void draw() {
+		switch(gameMode) {
+			case 1:
+				setBoard();
+				if (gameset > 0) {
+					player.get(0).vx = 0;
+					player.get(0).vy = 0;
+					player.get(0).x = 660;
+					player.get(0).y = 340;
+					for (i = 1; i <= leftPlayer; i++) {
+						player.get(i).vx = 0;
+						player.get(i).vy = 0;
+						player.get(i).x = 200;
+						player.get(i).y = 250 + (i - 1) * 100;
+					}
+					for (i = leftPlayer + 1; i <= leftPlayer + rightPlayer; i++) {
+						player.get(i).vx = 0;
+						player.get(i).vy = 0;
+						player.get(i).x = 1120;
+						player.get(i).y = 250 + (i - leftPlayer - 1) * 100;
+					}
+					
+					return;
+				}
 
-		setBoard();
-		
+				if (superPeer) {
+					engine();
+				}
+				break;
+			case 2:
+				setLobby();
+				for(int i=0; i<4; i++) {
+					if(enterRoomReq[i]) gameMode = 1;
+				}
+				break;
+			case 5:
+				// wait
+				break;
+			case 6: // create Player
+				player.add(new Player(0, 5, 14, 660, 340, 0xe6e6fa)); // 
+
+				for (i = 0; i < leftPlayer; i++) {
+					player.add(new Player(i + 1, 10, 20, 200, 250 + i * 100, 0xe6e6fa));
+				}
+				for (i = 0; i < rightPlayer; i++) {
+					player.add(new Player(leftPlayer + 1 + i, 10, 20, 1120, 250 + i * 100, 0xe6e6fa));
+				}
+				
+				GUI.gameMode = 1;
+				start = true;
+				break;
+			default:
+				break;
+		}
+
 		if (gameset > 0) {
 			player.get(0).vx = 0;
 			player.get(0).vy = 0;
@@ -68,7 +131,7 @@ public class GUI extends PApplet {
 		}
 
 	}
-
+	
 	public void mousePressed() {
 	}
 
@@ -91,43 +154,66 @@ public class GUI extends PApplet {
 	public void keyTyped() {
 		if (key == 'a') {
 			player.get(myNum).vx = -3.0f;
+			keypress = "a";
+			keyType = true;
 		} else if (key == 'd') {
 			player.get(myNum).vx = 3.0f;
+			keypress = "d";
+			keyType = true;
 		} else if (key == 'w') {
 			player.get(myNum).vy = -3.0f;
+			keypress = "w";
+			keyType = true;
 		} else if (key == 's') {
 			player.get(myNum).vy = 3.0f;
+			keypress = "s";
+			keyType = true;
 		}
+	}
+	
+	void setLobby() {
+		//size(1320, 680);
 		
+		/*background*/
+		background(color(71, 200, 62));
+		
+		/*title*/
+		fill(255);
+		textSize(80);
+		textAlign(CENTER);
+		text("ChugKU", 660, 150);
+		  
+		/*all buttons*/
+		for(int i=0; i<4; i++) button[i].place();
 	}
 
 	void setBoard() {
 
 		background(0, 128, 0); // green
 
-		// size(1320,680); ÀüÃ¼ ¸Ê»çÀÌÁî
-		// size(1120,520); Ãà±¸Àå »çÀÌÁî
+		// size(1320,680);   Ã¼  Ê»     
+		// size(1120,520);  à±¸         
 
-		// ÁÙ Æ¯Â¡ ¼³Á¤
+		//    Æ¯Â¡     
 		strokeWeight(5);
 		strokeCap(ROUND);
 
-		// °ñ´ë
+		//    
 		noFill();
 		stroke(0, 0, 0);
 		rect(50, 240, 50, 200); // x, y, d, h
 		rect(1220, 240, 50, 200); // x, y, d, h
 
-		// Ãà±¸Àå ¶óÀÎµé
+		//  à±¸      Îµ 
 		noFill();
 		stroke(248, 248, 255);
-		circle(660, 340, 220); // x, y, r Áß°£¿ø
+		circle(660, 340, 220); // x, y, r  ß°   
 
-		line(100, 80, 1220, 80); // x, y, d, h À­¶óÀÎ
-		line(100, 80, 100, 600); // x, y, d, h ¿Þ¶óÀÎ
-		line(1220, 80, 1220, 600); // x, y, d, h ¿À¸¥¶óÀÎ
-		line(100, 600, 1220, 600); // x, y, d, h ¾Æ·§¶óÀÎ
-		line(660, 80, 660, 600); // x, y, d, h Áß°£¼±
+		line(100, 80, 1220, 80); // x, y, d, h       
+		line(100, 80, 100, 600); // x, y, d, h  Þ¶   
+		line(1220, 80, 1220, 600); // x, y, d, h         
+		line(100, 600, 1220, 600); // x, y, d, h  Æ·     
+		line(660, 80, 660, 600); // x, y, d, h  ß°   
 
 		for (i = 0; i < player.size(); i++) {
 			player.get(i).update();
@@ -149,7 +235,9 @@ public class GUI extends PApplet {
 			text(gameset - 1, 640, 210);
 			gameset--;
 			delay(1000);
-		}		
+		}
+		
+		if(!start) startButton.place();
 	}
 	
 	void engine() {	
@@ -160,7 +248,7 @@ public class GUI extends PApplet {
 					float dy = player.get(i).y - player.get(j).y;
 					float dab = abs(sqrt(dx * dx + dy * dy));
 
-					if (dab <= player.get(i).r + player.get(j).r) { // µÎ °ø ¹× ÇÃ·¹ÀÌ¾î Ãæµ¹ ½Ã
+					if (dab <= player.get(i).r + player.get(j).r) { //           Ã·  Ì¾   æµ¹   
 						float sinTheta = dy / abs(sqrt(dx * dx + dy * dy));
 						float cosTheta = dx / abs(sqrt(dx * dx + dy * dy));
 						float vxAp = (player.get(i).m - e * player.get(j).m) / (player.get(i).m + player.get(j).m)
@@ -179,7 +267,7 @@ public class GUI extends PApplet {
 						player.get(j).vx = vxBp * cosTheta + vyBp * (-sinTheta);
 						player.get(j).vy = vxBp * sinTheta + vyBp * cosTheta;
 
-						// ÇÃ·¹ÀÌ¾î°£ °ãÄ§ ¹æÁö
+						//  Ã·  Ì¾î°£   Ä§     
 						float angleAB = atan2(dy, dx);
 						float angleplayer = atan2(-dy, -dx);
 						float moveToDistance = abs(player.get(i).r + player.get(j).r) - dab;
@@ -195,18 +283,18 @@ public class GUI extends PApplet {
 			}
 		}
 		
-		// ¿ÞÂÊ °ñ´ë¿¡ µé¾î°£ °æ¿ì
+		//        ë¿¡   î°£    
 		if (player.get(0).x < 100 && player.get(0).x > 50 && player.get(0).y < 440 && player.get(0).y > 240) {
 			gameset = 5;
 			rightScore += 1;
 		}
-		// ¿À¸¥ÂÊ °ñ´ë¿¡ µé¾î°£ °æ¿ì
+		//          ë¿¡   î°£    
 		if (player.get(0).x < 1270 && player.get(0).x > 1220 && player.get(0).y < 440 && player.get(0).y > 240) {
 			leftScore += 1;
 			gameset = 5;
 		}
 		
-		// °ø º®¿¡ ºÎµúÄ£ °æ¿ì
+		//          Îµ Ä£    
 		if (player.get(0).x + player.get(0).vx < player.get(0).r + 100
 				|| player.get(0).x + player.get(0).vx > width - player.get(0).r - 100) {
 			if (player.get(0).x + player.get(0).vx < player.get(0).r + 100 && (player.get(0).y < 240 + player.get(0).r || player.get(0).y > 440 - player.get(0).r)) { // left wall
@@ -230,7 +318,7 @@ public class GUI extends PApplet {
 			player.get(0).vx *= 0.8;
 		}
 
-		// ÇÃ·¹ÀÌ¾îµéÀÌ °¡ÀåÀÚ¸® º®¿¡ ºÎµúÈù °æ¿ì
+		//  Ã·  Ì¾          Ú¸        Îµ       
 		for (i = 1; i < player.size(); i++) {
 			if (player.get(i).x + player.get(i).vx < player.get(i).r
 					|| player.get(i).x + player.get(i).vx > width - player.get(i).r) {
@@ -254,7 +342,7 @@ public class GUI extends PApplet {
 			}
 		}
 		
-		// °øÀÇ ¸¶Âû·Â
+		//            
 		if (player.get(0).vx > 0.04) {
 			player.get(0).vx -= 0.04;
 		} else if (player.get(0).vx < -0.04) {
@@ -270,11 +358,11 @@ public class GUI extends PApplet {
 		} else if (player.get(0).vy < 0.15 && player.get(0).vy > -0.15) {
 			player.get(0).vy = 0;
 		}
-		// °ø ÁÂÇ¥ º¯È¯
+		//      Ç¥   È¯
 		player.get(0).x += player.get(0).vx;
 		player.get(0).y += player.get(0).vy;
 
-		// ÇÃ·¹ÀÌ¾îÀÇ ¸¶Âû·Â
+		//  Ã·  Ì¾          
 		for (i = 1; i < player.size(); i++) {
 			if (player.get(i).vx > 0.04) {
 				player.get(i).vx -= 0.04;
@@ -291,7 +379,7 @@ public class GUI extends PApplet {
 			} else if (player.get(i).vy < 0.08 && player.get(i).vy > -0.08) {
 				player.get(i).vy = 0;
 			}
-			// ÇÃ·¹ÀÌ¾î ÁÂÇ¥ º¯È¯
+			//  Ã·  Ì¾    Ç¥   È¯
 			player.get(i).x += player.get(i).vx;
 			player.get(i).y += player.get(i).vy;
 		}
@@ -328,10 +416,85 @@ public class GUI extends PApplet {
 				text(id, x - 9, y + 11);
 			}
 		}
-	}
+	 }
+	 
+	 public class Button {
+		  private int x=410, y;
+		  private int bWidth=500, bHeight=80;
+		  private int index;
+		  private String label;
+		  private boolean able;
+		  
+		  private boolean pressed=false;
+		  private int clicked=0;
+		    
+		  public Button(int idx) {
+		    index = idx;
+		    if(idx>=0) {
+		    	label = "Room No."+(index+1);
+		    	y = 250+idx*100;
+		    }
+		    else {
+		    	label = "start game";
+		    	bWidth = 200;
+		    	bHeight = 50;
+		    	x=100;
+		    	y = 20;
+		    }
+		  }
+		  
+		  public void place() {
+		    stroke(255);
+		    strokeWeight(5);
+		    if(!pressed) {
+		      noFill();
+		      rect(x, y, bWidth, bHeight);
+		      
+		      fill(255);
+		      textSize(25);
+		      textAlign(CENTER, CENTER);
+		      text(label, x+bWidth/2, y+bHeight/2);
+		    }
+		    else {
+		      fill(255);
+		      rect(x, y, bWidth, bHeight);
+		      
+		      fill(color(71, 200, 62));
+		      textSize(25);
+		      textAlign(CENTER, CENTER);
+		      text(label, x+bWidth/2, y+bHeight/2);
+		    }
+		    
+		    if(clicked==0 && mousePressed) { //mouse pressed
+		      pressed = onButton(mouseX, mouseY);
+		      if(pressed) clicked = 1; else clicked = 0; //press button
+		    }
+		    else if(clicked==1 && !mousePressed) { //mouse released
+		      pressed = false;
+		      clicked = 0;
+		      if(onButton(mouseX, mouseY)) { //release on button -> decide to enter room
+		    	  if(index>=0) {
+		    		  	println("Enter Room No."+index);
+				        //should be changed -> receive from client that is able of not
+				        enterRoom[index] = true;
+				        gameMode = 2;
+		    	  } else {
+		    		 gameMode=3;
+		    	  }
+		      }
+		      else { //do not release on button -> decide not to enter room
+		        println("Do not want to Enter Room No."+index);
+		      }
+		    }
+		  }
+		  
+		  boolean onButton(int mx, int my) {
+		    if(mx < x || mx > x+bWidth || my < y || my > y+bHeight) return false;
+		    else return true;
+		  }
+		}
 	
 	public static void main(String[] args) {
-		
 		GUI.leftPlayer = 1;
 		GUI.rightPlayer = 1;
 		GUI.myNum = 1;
@@ -342,11 +505,20 @@ public class GUI extends PApplet {
 		} catch(InterruptedException e) {
 			System.out.println(e.getMessage());
 		}
+		/*
+		boolean isEnter = false;
+		while(!isEnter) {
+			for(int i=0; i<4; i++) {
+				if(GUI.button[i].able) isEnter = true;
+			}
+		}
+
 		while(true) {
 			for (int i = 0; i <= GUI.leftPlayer + GUI.rightPlayer; i++) {
-				System.out.print(i + "¹øx:" + GUI.player.get(i).x + ", " + i + "¹øy:" + GUI.player.get(i).y + ", ");
+				System.out.print(i + "  x:" + GUI.player.get(i).x + ", " + i + "  y:" + GUI.player.get(i).y + ", ");
 			}
 			System.out.println();
 		}
+		*/
 	}
 }

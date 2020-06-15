@@ -110,19 +110,19 @@ public class ServerHandler implements CMAppEventHandler {
 		int index = 0;
 		String cmd = null;
 		
+		if(roomName.contentEquals("g2")) {
+			index=0;
+		} else if(roomName.contentEquals("g3")) {
+			index=1;
+		} else if(roomName.contentEquals("g4")) {
+			index=2;
+		} else if(roomName.contentEquals("g5")) {
+			index=3;
+		}
+		
 		if(command.equals("enter")) {
 			System.out.println("Enter?");
 			CMDummyEvent newDummyEvent = new CMDummyEvent();
-			
-			if(roomName.contentEquals("g2")) {
-				index=0;
-			} else if(roomName.contentEquals("g3")) {
-				index=1;
-			} else if(roomName.contentEquals("g4")) {
-				index=2;
-			} else if(roomName.contentEquals("g5")) {
-				index=3;
-			}
 			
 			newDummyEvent.setID(dummyEvent.getID());
 			
@@ -134,7 +134,11 @@ public class ServerHandler implements CMAppEventHandler {
 			newDummyEvent.setDummyInfo(cmd);
 			serverStub.send(newDummyEvent, dummyEvent.getSender());
 		}
-		else {
+		else if(command.equals("busy")){
+			enterRoomList.set(index, false);
+		} else if(command.equals("free")){
+			enterRoomList.set(index, true);
+		} else {
 			System.err.println("Unknown Command");
 		}
 	}
